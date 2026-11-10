@@ -1,0 +1,23 @@
+.hint {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--text-2);
+}
+
+.chip {
+  padding: 4px 9px;
+  border-radius: 8px;
+  background: var(--surface);
+  white-space: nowrap;
+}
+
+[data-theme='dark'] .chip {
+  background: var(--surface-2);
+}
+
+.suffix {
+  align-self: center;
+  margin-left: 2px;
+}

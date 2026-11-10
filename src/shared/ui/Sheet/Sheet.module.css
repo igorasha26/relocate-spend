@@ -1,0 +1,96 @@
+.root {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  touch-action: none;
+  background: var(--overlay);
+  opacity: 0;
+  transition: opacity var(--duration) var(--ease);
+}
+
+.panel {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: var(--app-width);
+  max-height: calc(100dvh - var(--safe-top) - 40px);
+  border-radius: 26px 26px 0 0;
+  background: var(--sheet-bg);
+  color: var(--text);
+  outline: none;
+  transform: translateY(100%);
+  transition: transform var(--duration) var(--ease);
+  box-shadow: 0 -8px 30px rgb(0 0 0 / 0.12);
+
+  --field-bg: var(--sheet-option);
+  --field-border: var(--separator);
+}
+
+.visible .overlay {
+  opacity: 1;
+}
+
+.visible .panel {
+  transform: translateY(var(--drag, 0px));
+}
+
+.dragging {
+  transition: none;
+}
+
+.grabArea {
+  touch-action: none;
+  cursor: grab;
+}
+
+.handle {
+  width: 36px;
+  height: 5px;
+  margin: 8px auto 0;
+  border-radius: 3px;
+  background: var(--surface-3);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 18px 20px 0;
+}
+
+.title {
+  flex: 1;
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  touch-action: pan-y;
+  padding: 10px 20px 20px;
+}
+
+.subtitle {
+  margin-bottom: 20px;
+  font-size: 14px;
+  line-height: 1.4;
+  color: var(--text-2);
+  white-space: pre-line;
+}
+
+.footer {
+  padding: 8px 20px calc(16px + var(--safe-bottom));
+}

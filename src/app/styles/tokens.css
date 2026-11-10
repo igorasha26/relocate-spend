@@ -1,0 +1,179 @@
+/*
+ * Дизайн-токены. Компоненты используют только переменные отсюда,
+ * поэтому новая тема = новый блок [data-theme='…'].
+ *
+ * Светлая тема — зелёная палитра из макета, тёмная — iOS Dark.
+ */
+
+:root {
+  --font: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', 'Inter', 'Segoe UI', Roboto,
+    'Helvetica Neue', Arial, sans-serif;
+
+  --radius-xs: 8px;
+  --radius-sm: 12px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-xl: 24px;
+
+  --space-page: 24px;
+  --app-width: 480px;
+  --tabbar-height: 64px;
+
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+
+  /* Движение: iOS-подобная кривая, короткие длительности — заметно, но не отвлекает */
+  --ease: cubic-bezier(0.32, 0.72, 0, 1);
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --duration: 380ms;
+  --duration-fast: 180ms;
+}
+
+:root,
+[data-theme='light'] {
+  color-scheme: light;
+
+  --bg: #f5f7f6;
+  --surface: #ffffff;
+  --surface-2: #e9efed;
+  --surface-3: #dfe7e4;
+  --sheet-bg: #ffffff;
+  --sheet-option: #f2f5f4;
+  --separator: #e6ecea;
+  --overlay: rgb(20 30 27 / 0.35);
+
+  --text: #16211e;
+  --text-2: #69756f;
+  --text-3: #9aa59f;
+
+  --accent: #176b5b;
+  --accent-pressed: #125446;
+  --on-accent: #ffffff;
+  --accent-text: #176b5b;
+  --accent-soft: #d8efa1;
+  --on-accent-soft: #176b5b;
+
+  --banner-bg: #d8efa1;
+  --banner-title: #176b5b;
+  --banner-text: #2f6a4f;
+
+  --promo-bg: #173f34;
+  --promo-text: #ffffff;
+  --promo-text-2: #b9cbc4;
+  --promo-badge-bg: #d8efa1;
+  --promo-badge-text: #173f34;
+  --promo-track: rgb(255 255 255 / 0.18);
+  --promo-fill: #d8efa1;
+
+  --success: #2e7d5b;
+  --success-soft: #e5f0ea;
+  --danger: #d9483b;
+  --warning: #9a4f1f;
+  --warning-icon: #b4683a;
+  --warning-soft: #f5e9db;
+
+  --tab-bg: #f5f7f6;
+  --tab-inactive: #7c8783;
+  --tab-active: #176b5b;
+  --tab-add-bg: #d8efa1;
+  --tab-add-icon: #176b5b;
+  --tab-add-border: rgb(23 107 91 / 0.35);
+  --tab-add-active-bg: #176b5b;
+  --tab-add-active-icon: #ffffff;
+
+  --skeleton: #e6ecea;
+
+  --cat-c1: #176b5b;
+  --cat-c2: #b4d878;
+  --cat-c3: #b8a7d4;
+  --cat-c4: #e9af8a;
+  --cat-c5: #d99aa6;
+  --cat-c6: #7fb3c8;
+  --cat-c7: #b3bab7;
+  --cat-c8: #cdbf8a;
+
+  --bar-past: #b4d878;
+  --bar-current: #176b5b;
+  --bar-empty: #e6ecea;
+
+  /* Плитка категории: тонированный фон + насыщенная иконка */
+  --cat-tile-bg-mix: 26%;
+  --cat-tile-bg-base: #ffffff;
+  --cat-tile-icon-mix: 72%;
+  --cat-tile-icon-base: #1a2b25;
+}
+
+[data-theme='dark'] {
+  color-scheme: dark;
+
+  --bg: #000000;
+  --surface: #1c1c1e;
+  --surface-2: #2c2c2e;
+  --surface-3: #3a3a3c;
+  --sheet-bg: #1c1c1e;
+  --sheet-option: #2c2c2e;
+  --separator: #38383a;
+  --overlay: rgb(0 0 0 / 0.6);
+
+  --text: #ffffff;
+  --text-2: #8e8e93;
+  --text-3: #636366;
+
+  --accent: #0a84ff;
+  --accent-pressed: #0a6fd6;
+  --on-accent: #ffffff;
+  --accent-text: #0a84ff;
+  --accent-soft: #0a84ff;
+  --on-accent-soft: #ffffff;
+
+  --banner-bg: #0a6fe5;
+  --banner-title: #ffffff;
+  --banner-text: #d6e7ff;
+
+  --promo-bg: #1c1c1e;
+  --promo-text: #ffffff;
+  --promo-text-2: #8e8e93;
+  --promo-badge-bg: #0a84ff;
+  --promo-badge-text: #ffffff;
+  --promo-track: #3a3a3c;
+  --promo-fill: #0a84ff;
+
+  --success: #30d158;
+  --success-soft: #10291a;
+  --danger: #ff453a;
+  --warning: #ff9f0a;
+  --warning-icon: #ff9f0a;
+  --warning-soft: #2c2219;
+
+  --tab-bg: #000000;
+  --tab-inactive: #8e8e93;
+  --tab-active: #0a84ff;
+  --tab-add-bg: rgb(10 132 255 / 0.16);
+  --tab-add-icon: #4da3ff;
+  --tab-add-border: rgb(10 132 255 / 0.45);
+  --tab-add-active-bg: #0a84ff;
+  --tab-add-active-icon: #ffffff;
+
+  --skeleton: #2c2c2e;
+
+  /* Поля на странице в тёмной теме — с тонкой рамкой, чтобы не сливались с карточками */
+  --field-border: #3a3a3c;
+
+  --cat-c1: #79a9d9;
+  --cat-c2: #9cbbab;
+  --cat-c3: #b8a7d4;
+  --cat-c4: #dab99a;
+  --cat-c5: #d2a0ac;
+  --cat-c6: #86b7c6;
+  --cat-c7: #b4b4be;
+  --cat-c8: #c9bc90;
+
+  --bar-past: #8ea9c6;
+  --bar-current: #0a84ff;
+  --bar-empty: #2c2c2e;
+
+  --cat-tile-bg-mix: 0%;
+  --cat-tile-bg-base: #2c2c2e;
+  --cat-tile-icon-mix: 0%;
+  --cat-tile-icon-base: #0a84ff;
+}

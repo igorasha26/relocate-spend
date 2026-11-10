@@ -1,0 +1,33 @@
+.notice {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 52px;
+  padding: 12px 16px;
+  border-radius: var(--radius-md);
+}
+
+.warning {
+  background: var(--warning-soft);
+  color: var(--warning);
+}
+
+.success {
+  background: var(--success-soft);
+  color: var(--success);
+}
+
+.icon {
+  flex-shrink: 0;
+}
+
+.title {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.text {
+  margin-top: 4px;
+  font-size: 11px;
+  opacity: 0.9;
+}

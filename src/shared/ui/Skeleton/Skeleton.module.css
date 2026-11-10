@@ -1,0 +1,16 @@
+.skeleton {
+  display: block;
+  background: var(--skeleton);
+  animation: pulse 1.4s ease-in-out infinite;
+}
+
+.circle {
+  background: transparent;
+  border: 18px solid var(--skeleton);
+}
+
+@keyframes pulse {
+  50% {
+    opacity: 0.55;
+  }
+}

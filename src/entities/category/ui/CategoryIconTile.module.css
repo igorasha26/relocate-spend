@@ -1,0 +1,34 @@
+.tile {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: color-mix(in srgb, var(--cat) var(--cat-tile-bg-mix), var(--cat-tile-bg-base));
+  color: color-mix(in srgb, var(--cat) var(--cat-tile-icon-mix), var(--cat-tile-icon-base));
+}
+
+.sm {
+  width: 32px;
+  height: 32px;
+  border-radius: 9px;
+}
+
+.md {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+}
+
+.lg {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+}
+
+.dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}

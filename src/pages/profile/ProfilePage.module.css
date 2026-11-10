@@ -1,0 +1,125 @@
+.account {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  column-gap: 16px;
+  row-gap: 14px;
+  align-items: center;
+  padding: 16px;
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+}
+
+.accountIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: var(--surface-2);
+  color: var(--accent-text);
+}
+
+.accountTitle {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.accountSince {
+  margin-top: 4px;
+  font-size: 12px;
+  color: var(--text-2);
+}
+
+.saved {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  color: var(--text-2);
+}
+
+.savedDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+/* ---------- Тариф ---------- */
+
+.plan {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px 16px 28px;
+  border-radius: var(--radius-lg);
+  background: var(--promo-bg);
+  color: var(--promo-text);
+}
+
+.planText {
+  flex: 1;
+  min-width: 0;
+}
+
+.planBadge {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--promo-badge-bg);
+}
+
+.planTitle {
+  margin-top: 10px;
+  font-size: 22px;
+  font-weight: 600;
+}
+
+.planHint {
+  margin-top: 6px;
+  font-size: 11px;
+  color: var(--promo-text-2);
+}
+
+.progress {
+  position: relative;
+  height: 4px;
+  margin-top: 18px;
+  border-radius: 2px;
+  background: var(--promo-track);
+  overflow: hidden;
+}
+
+.progress::after {
+  content: '';
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: var(--progress);
+  border-radius: 2px;
+  background: var(--promo-fill);
+}
+
+.planButton {
+  flex-shrink: 0;
+  min-height: 40px;
+  padding: 0 16px;
+  border-radius: 12px;
+  background: var(--promo-badge-bg);
+  color: var(--promo-badge-text);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.version {
+  text-align: center;
+  font-size: 11px;
+  color: var(--text-2);
+}
+
+.sheetNote {
+  margin-top: 20px;
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--text-2);
+}

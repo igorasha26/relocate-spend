@@ -1,0 +1,404 @@
+/* ---------- Итог ---------- */
+
+.summary {
+  display: flex;
+  flex-direction: column;
+}
+
+.totalLabel {
+  font-size: 13px;
+  color: var(--text-2);
+}
+
+.totalRow {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 4px;
+}
+
+.total {
+  font-size: 40px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+}
+
+.totalSign {
+  margin-left: 8px;
+  font-size: 0.62em;
+  font-weight: 600;
+  color: var(--text-2);
+}
+
+.currencyButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  min-width: 86px;
+  height: 34px;
+  margin-left: auto;
+  margin-right: 30px;
+  padding: 0 12px;
+  border-radius: 10px;
+  background: var(--surface);
+  font-size: 15px;
+  font-weight: 600;
+}
+
+[data-theme='dark'] .currencyButton {
+  background: var(--surface-2);
+}
+
+.delta {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 6px;
+  font-size: 13px;
+  color: var(--success);
+}
+
+.deltaUp {
+  color: var(--danger);
+}
+
+/* ---------- Карточка графика ---------- */
+
+.chartCard {
+  padding: 18px 18px 20px;
+  border-radius: var(--radius-xl);
+  background: var(--surface);
+}
+
+.chartHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.chartTitle {
+  font-size: 17px;
+  font-weight: 600;
+}
+
+/* ---------- Карусель колец ---------- */
+
+.carousel {
+  position: relative;
+  /* Карусель — во всю ширину карточки, чтобы соседние кольца выглядывали из-за края */
+  margin: 4px -18px 0;
+  overflow: hidden;
+  touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.slot {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  margin-left: calc(var(--donut-size, 264px) / -2);
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+}
+
+.slotSide {
+  cursor: pointer;
+}
+
+/* ---------- Кольцо ---------- */
+
+.donut {
+  position: relative;
+  width: 264px;
+  height: 264px;
+}
+
+.donut svg {
+  overflow: visible;
+}
+
+.slice {
+  cursor: pointer;
+}
+
+.pct {
+  font-size: 13px;
+  font-weight: 500;
+  fill: var(--text-2);
+  font-variant-numeric: tabular-nums;
+}
+
+.donutPassive .pct {
+  display: none;
+}
+
+.donutCenter {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  text-align: center;
+  pointer-events: none;
+}
+
+.donutCaption {
+  font-size: 13px;
+  color: var(--text-2);
+}
+
+.donutTitle {
+  max-width: 120px;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+/* ---------- Плашки категорий ---------- */
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+  list-style: none;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 11px;
+  border-radius: 11px;
+  background: var(--surface-2);
+  font-size: 13px;
+  color: var(--text-2);
+}
+
+.chip:disabled {
+  opacity: 1;
+}
+
+.chipName {
+  color: var(--text);
+}
+
+.chipValue {
+  font-weight: 700;
+  color: var(--text);
+}
+
+/* ---------- Легенда ---------- */
+
+
+
+
+.legendDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+
+
+/* ---------- Свайп по столбцам ---------- */
+
+.barsSwipe {
+  touch-action: pan-y;
+  translate: var(--swipe, 0px) 0;
+  transition: translate var(--duration) var(--ease);
+}
+
+.barsSwipe[data-dragging] {
+  transition: none;
+}
+
+.chartFooter,
+.bucketCaption {
+  margin-top: 16px;
+  font-size: 12px;
+  color: var(--text-2);
+}
+
+.bucketCaption {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text);
+}
+
+/* ---------- Столбцы ---------- */
+
+.bars {
+  position: relative;
+  height: 180px;
+  padding-left: 14px;
+}
+
+.grid {
+  position: absolute;
+  inset: 0 0 24px 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.gridLine {
+  position: relative;
+  border-top: 1px solid var(--separator);
+}
+
+.gridLine span {
+  position: absolute;
+  top: -15px;
+  left: -14px;
+  font-size: 9px;
+  color: var(--text-2);
+}
+
+.columns {
+  position: relative;
+  display: grid;
+  height: 100%;
+  padding: 0 0 0 16px;
+  column-gap: 6px;
+}
+
+.column {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.barTrack {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  width: 100%;
+  flex: 1;
+}
+
+.bar {
+  width: min(26px, 70%);
+  border-radius: 6px 6px 3px 3px;
+  transform-origin: bottom;
+  transition: height 300ms var(--ease);
+  animation: bar-grow 520ms var(--ease-out) both;
+  animation-delay: calc(var(--i, 0) * 30ms);
+}
+
+@keyframes bar-grow {
+  from {
+    transform: scaleY(0);
+  }
+}
+
+.barPast {
+  background: var(--bar-past);
+}
+
+.barCurrent {
+  background: var(--bar-current);
+}
+
+.barEmpty {
+  width: min(26px, 70%);
+  height: 3px;
+  border-radius: 2px;
+  background: var(--bar-empty);
+}
+
+.barLabel {
+  height: 16px;
+  font-size: 9px;
+  color: var(--text-2);
+  white-space: nowrap;
+}
+
+.columnSelected .barLabel {
+  color: var(--text);
+  font-weight: 600;
+}
+
+/* ---------- Шторка категории (UI 05) ---------- */
+
+.sheetPeriod {
+  font-size: 14px;
+  color: var(--text-2);
+}
+
+.sheetAmount {
+  margin-top: 16px;
+  font-size: 32px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.shareBadge {
+  display: inline-block;
+  margin-top: 14px;
+  padding: 6px 12px;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--accent) 22%, var(--sheet-bg));
+  font-size: 12px;
+  color: var(--text);
+}
+
+.sheetCount {
+  margin-top: 22px;
+  font-size: 14px;
+  color: var(--text-2);
+}
+
+.sheetList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.sheetItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: var(--radius-md);
+  background: var(--sheet-option);
+  text-align: left;
+}
+
+.sheetItemMain {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+  min-width: 0;
+}
+
+.sheetItemTitle {
+  font-size: 17px;
+  font-weight: 500;
+}
+
+.sheetItemMeta {
+  font-size: 12px;
+  color: var(--text-2);
+}
+
+.sheetItemAmount {
+  font-size: 15px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.sheetNote {
+  margin-top: 24px;
+  font-size: 13px;
+  color: var(--text-2);
+}

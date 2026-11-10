@@ -1,0 +1,124 @@
+.listSection {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+.listHeader {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  margin-right: -8px;
+}
+
+.listTitle {
+  flex: 1;
+  font-size: 21px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.filterButton {
+  position: relative;
+}
+
+.filterDot {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 0 2px var(--bg);
+}
+
+.activeFilters {
+  align-self: flex-start;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--accent-text);
+}
+
+/* ---------- Поиск ---------- */
+
+.searchHeader {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.searchPeriod {
+  align-self: flex-start;
+  margin-top: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--accent-text);
+}
+
+.searchSummary {
+  font-size: 15px;
+  color: var(--text-2);
+}
+
+.searchHint {
+  margin-top: 24px;
+  max-width: 260px;
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--text-2);
+}
+
+.muted {
+  color: var(--text-2);
+}
+
+/* ---------- Скелетон ---------- */
+
+.skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.skeletonStack {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex: 1;
+}
+
+.skeletonCard {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 20px;
+  border-radius: var(--radius-xl);
+  background: var(--surface);
+}
+
+.skeletonPie {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+}
+
+.skeletonLegend {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  flex: 1;
+}
+
+.skeletonRow {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.skeletonText {
+  text-align: center;
+  font-size: 13px;
+  color: var(--text-2);
+}

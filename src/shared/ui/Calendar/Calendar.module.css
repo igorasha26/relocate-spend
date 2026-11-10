@@ -1,0 +1,78 @@
+.calendar {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding-left: 4px;
+}
+
+.month {
+  flex: 1;
+  font-size: 19px;
+  font-weight: 600;
+}
+
+.nav {
+  color: var(--accent-text);
+}
+
+.weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  justify-items: center;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-2);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  /* 6 строк всегда — высота не прыгает между месяцами */
+  grid-template-rows: repeat(6, 38px);
+  row-gap: 6px;
+  justify-items: center;
+}
+
+.empty {
+  width: 38px;
+  height: 38px;
+}
+
+.day {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  font-size: 17px;
+  color: var(--text-2);
+  transition: background-color 150ms;
+}
+
+.day:disabled {
+  opacity: 0.25;
+  cursor: not-allowed;
+}
+
+/* Сегодня — кольцо акцентного цвета, чтобы день было видно в любом выборе */
+.today {
+  color: var(--accent-text);
+  font-weight: 700;
+  box-shadow: inset 0 0 0 1.5px var(--accent);
+}
+
+.inside {
+  background: color-mix(in srgb, var(--accent) 22%, var(--sheet-bg));
+  color: var(--text);
+  font-weight: 500;
+}
+
+.edge {
+  background: var(--accent);
+  color: var(--on-accent);
+  font-weight: 600;
+}

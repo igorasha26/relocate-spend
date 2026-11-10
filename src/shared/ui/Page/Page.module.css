@@ -1,0 +1,17 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  padding: 0 var(--space-page) 24px;
+}
+
+.sm {
+  gap: 16px;
+}
+
+.md {
+  gap: 22px;
+}
+
+.lg {
+  gap: 28px;
+}

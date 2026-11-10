@@ -1,0 +1,85 @@
+.tabBar {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  z-index: 50;
+  display: flex;
+  width: 100%;
+  max-width: var(--app-width);
+  padding: 8px 8px calc(6px + var(--safe-bottom));
+  border-top: 1px solid var(--separator);
+  background: color-mix(in srgb, var(--tab-bg) 92%, transparent);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  transform: translateX(-50%);
+}
+
+.tab {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  min-height: var(--tabbar-height);
+  padding-top: 4px;
+  font-size: 11px;
+  color: var(--tab-inactive);
+}
+
+.active {
+  color: var(--tab-active);
+}
+
+.iconWrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 32px;
+}
+
+.label {
+  font-weight: 500;
+}
+
+.active .label {
+  font-weight: 600;
+}
+
+/* Кнопка «Добавить»: квадрат с обводкой и плюсом — одинаково в обеих темах, цвета из токенов */
+.iconOutline {
+  display: block;
+}
+
+.primary .iconOutline {
+  display: none;
+}
+
+.primary .iconPlus {
+  display: block;
+}
+
+.primary .iconWrap {
+  width: 44px;
+  height: 36px;
+  border-radius: 12px;
+  background: var(--tab-add-bg);
+  color: var(--tab-add-icon);
+  box-shadow: inset 0 0 0 1.5px var(--tab-add-border);
+  transition:
+    background-color 200ms,
+    color 200ms;
+}
+
+.primary.active .iconWrap {
+  background: var(--tab-add-active-bg);
+  color: var(--tab-add-active-icon);
+  box-shadow: inset 0 0 0 1.5px var(--tab-add-active-bg);
+}
+
+.tab {
+  gap: 6px;
+}
+
+.iconWrap {
+  height: 36px;
+}

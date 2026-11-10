@@ -1,0 +1,170 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
+  background: var(--bg);
+  /* Без масштабирования жестами и без горизонтальной прокрутки */
+  touch-action: pan-x pan-y;
+  overflow-x: clip;
+  overscroll-behavior-x: none;
+}
+
+body {
+  overflow-x: clip;
+  min-height: 100dvh;
+  font-family: var(--font);
+  font-size: 16px;
+  line-height: 1.35;
+  color: var(--text);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-variant-numeric: tabular-nums;
+}
+
+#root {
+  min-height: 100dvh;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: default;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+input,
+textarea {
+  border: none;
+  outline: none;
+  background: transparent;
+  min-width: 0;
+  /* iOS Safari увеличивает страницу при фокусе на поле со шрифтом меньше 16px */
+  font-size: max(16px, 1em);
+}
+
+textarea {
+  resize: none;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--text-2);
+  opacity: 1;
+}
+
+input[type='number']::-webkit-inner-spin-button,
+input[type='number']::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* У полей ввода рамку фокуса рисует их контейнер (box-shadow), второй контур не нужен */
+input:focus-visible,
+textarea:focus-visible {
+  outline: none;
+}
+
+input[type='search']::-webkit-search-cancel-button {
+  -webkit-appearance: none;
+}
+
+svg {
+  display: block;
+  flex-shrink: 0;
+}
+
+/* Скрытый текст для скринридеров */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* ---------- Анимации ---------- */
+
+@keyframes page-enter {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Экран при переходе */
+.page-enter {
+  animation: page-enter 320ms var(--ease-out) both;
+}
+
+/* Контент при смене данных (период и т. п.) */
+.fade-in {
+  animation: fade-in 260ms var(--ease-out) both;
+}
+
+/* Мягкий отклик на нажатие у всех кнопок */
+button:not(:disabled) {
+  transition:
+    transform var(--duration-fast) var(--ease-out),
+    opacity var(--duration-fast),
+    background-color var(--duration-fast),
+    color var(--duration-fast);
+}
+
+button:not(:disabled):active {
+  transform: scale(0.97);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

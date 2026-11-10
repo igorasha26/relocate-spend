@@ -1,0 +1,19 @@
+.search {
+  margin-bottom: 16px;
+}
+
+.empty {
+  padding: 24px 0;
+  text-align: center;
+  color: var(--text-2);
+}
+
+.create {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 20px;
+  font-size: 17px;
+  font-weight: 500;
+  color: var(--accent-text);
+}

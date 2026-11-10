@@ -1,0 +1,32 @@
+.scanBanner {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-height: 80px;
+  padding: 16px 18px;
+  border-radius: var(--radius-lg);
+  background: var(--banner-bg);
+  color: var(--banner-title);
+  text-align: left;
+  transition: transform 150ms;
+}
+
+.scanBanner:active {
+  transform: scale(0.99);
+}
+
+.scanText {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.scanTitle {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.scanSubtitle {
+  font-size: 11px;
+  color: var(--banner-text);
+}

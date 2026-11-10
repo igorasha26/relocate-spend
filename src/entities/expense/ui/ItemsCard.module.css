@@ -1,0 +1,46 @@
+.card {
+  padding: 18px 16px 16px;
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+}
+
+.header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.title {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.count {
+  font-size: 11px;
+  color: var(--text-2);
+}
+
+.list {
+  list-style: none;
+}
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  padding: 8px 0;
+  font-size: 14px;
+  text-align: left;
+}
+
+.name {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.price {
+  flex-shrink: 0;
+  font-weight: 500;
+}

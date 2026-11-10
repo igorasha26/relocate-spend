@@ -1,0 +1,76 @@
+.hero {
+  padding: 22px 20px 48px;
+  border-radius: var(--radius-xl);
+  background: var(--promo-bg);
+  color: var(--promo-text);
+}
+
+.badge {
+  display: inline-block;
+  padding: 5px 16px;
+  border-radius: 8px;
+  background: var(--promo-badge-bg);
+  color: var(--promo-badge-text);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.heroTitle {
+  margin-top: 28px;
+  font-size: 28px;
+  font-weight: 600;
+  line-height: 1.35;
+  white-space: pre-line;
+}
+
+.heroText {
+  margin-top: 26px;
+  font-size: 15px;
+  line-height: 1.4;
+  color: var(--promo-text-2);
+  white-space: pre-line;
+}
+
+.features {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  padding: 22px 16px;
+  border-radius: var(--radius-xl);
+  background: var(--surface);
+}
+
+.feature {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.featureIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: var(--surface-2);
+  color: var(--accent-text);
+}
+
+.featureTitle {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.featureText {
+  margin-top: 6px;
+  font-size: 11px;
+  color: var(--text-2);
+}
+
+.terms {
+  margin-top: 6px;
+  font-size: 12px;
+  color: var(--text-2);
+}

@@ -1,0 +1,84 @@
+.root {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  touch-action: none;
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  background: var(--overlay);
+  opacity: 0;
+  transition: opacity 200ms;
+}
+
+.panel {
+  position: relative;
+  width: 100%;
+  max-width: 280px;
+  border-radius: 16px;
+  background: var(--sheet-bg);
+  outline: none;
+  opacity: 0;
+  transform: scale(1.08);
+  transition:
+    opacity 200ms,
+    transform 200ms var(--ease);
+  overflow: hidden;
+}
+
+[data-theme='dark'] .panel {
+  background: #2c2c2e;
+}
+
+.visible .overlay,
+.visible .panel {
+  opacity: 1;
+}
+
+.visible .panel {
+  transform: scale(1);
+}
+
+.content {
+  padding: 20px 18px 18px;
+  text-align: center;
+}
+
+.title {
+  font-size: 17px;
+  font-weight: 600;
+}
+
+.message {
+  margin-top: 14px;
+  font-size: 14px;
+  line-height: 1.4;
+  white-space: pre-line;
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+}
+
+.action {
+  min-height: 50px;
+  border-top: 1px solid var(--separator);
+  font-size: 17px;
+  color: var(--accent-text);
+}
+
+.action:active {
+  background: var(--surface-2);
+}
+
+.danger {
+  color: var(--danger);
+  font-weight: 500;
+}

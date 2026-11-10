@@ -1,0 +1,64 @@
+.hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  margin-top: -6px;
+}
+
+.source {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--accent) 10%, var(--bg));
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--accent-text);
+}
+
+[data-theme='dark'] .source {
+  background: var(--surface);
+}
+
+.amount {
+  margin-top: 22px;
+  font-size: 34px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.approx {
+  display: flex;
+  justify-content: center;
+  margin-top: 12px;
+}
+
+.approx > p {
+  justify-content: center;
+}
+
+.card {
+  padding: 6px 16px;
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+}
+
+.addItem {
+  align-self: flex-start;
+  margin-left: 18px;
+}
+
+.rate {
+  font-size: 11px;
+  color: var(--text-2);
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+}

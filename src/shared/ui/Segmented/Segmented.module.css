@@ -1,0 +1,78 @@
+.root {
+  position: relative;
+  display: flex;
+  padding: 3px;
+  border-radius: 12px;
+  background: var(--surface-2);
+}
+
+[data-theme='dark'] .root {
+  background: var(--surface);
+}
+
+.thumb {
+  position: absolute;
+  top: 3px;
+  bottom: 3px;
+  left: 3px;
+  width: calc((100% - 6px) / var(--count));
+  border-radius: 9px;
+  background: var(--surface);
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.08);
+  transform: translateX(calc(100% * var(--index)));
+  transition: transform var(--duration) var(--ease);
+}
+
+[data-theme='dark'] .thumb {
+  background: var(--surface-2);
+}
+
+.segment {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 32px;
+  border-radius: 9px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-2);
+  transition:
+    background-color 200ms,
+    color 200ms;
+}
+
+.selected {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.segment:active {
+  transform: none;
+}
+
+.compact {
+  padding: 2px;
+  border-radius: 10px;
+}
+
+.compact .thumb {
+  top: 2px;
+  bottom: 2px;
+  left: 2px;
+  width: 38px;
+  border-radius: 8px;
+}
+
+.compact .segment {
+  width: 38px;
+  min-height: 28px;
+  flex: none;
+  border-radius: 8px;
+}
+
+.compact .selected {
+  color: var(--accent-text);
+}

@@ -1,0 +1,42 @@
+.card {
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+}
+
+.muted {
+  background: var(--surface-2);
+}
+
+[data-theme='dark'] .muted {
+  background: var(--surface);
+}
+
+.promo {
+  background: var(--promo-bg);
+  color: var(--promo-text);
+}
+
+.pad-none {
+  padding: 0;
+}
+
+.pad-md {
+  padding: 16px;
+}
+
+.pad-lg {
+  padding: 20px;
+}
+
+.infoTitle {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.infoText {
+  margin-top: 6px;
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--text-2);
+  white-space: pre-line;
+}

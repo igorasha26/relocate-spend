@@ -1,0 +1,111 @@
+.group {
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  overflow: hidden;
+}
+
+.sectionLabel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 0 0 10px;
+  font-size: 13px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  color: var(--text-2);
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  min-height: 60px;
+  padding: 0 16px;
+  text-align: left;
+}
+
+.interactive:active {
+  background: var(--surface-2);
+}
+
+.leading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent-text);
+}
+
+.body {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  min-width: 0;
+  align-self: stretch;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--separator);
+}
+
+.row:last-child .body {
+  border-bottom: none;
+}
+
+.main {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  flex: 1;
+  min-width: 0;
+}
+
+.title {
+  font-size: 15px;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.accent {
+  color: var(--accent-text);
+}
+
+.danger {
+  color: var(--danger);
+}
+
+.subtitle {
+  font-size: 12px;
+  color: var(--text-2);
+}
+
+.value {
+  font-size: 13px;
+  color: var(--text-2);
+  white-space: nowrap;
+}
+
+.chevron {
+  color: var(--text-2);
+}
+
+.kv {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 11px 0;
+  font-size: 13px;
+}
+
+.kvLabel {
+  color: var(--text-2);
+  flex-shrink: 0;
+}
+
+.kvValue {
+  text-align: right;
+  font-weight: 500;
+  overflow-wrap: anywhere;
+}

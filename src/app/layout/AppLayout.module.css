@@ -1,0 +1,23 @@
+.app {
+  max-width: var(--app-width);
+  min-height: 100dvh;
+  margin: 0 auto;
+  background: var(--bg);
+}
+
+.withTabBar {
+  padding-bottom: calc(var(--tabbar-height) + var(--safe-bottom) + 24px);
+}
+
+.fullscreen {
+  min-height: 100dvh;
+}
+
+/* На широких экранах — «телефон» по центру */
+@media (min-width: 560px) {
+  .app {
+    box-shadow:
+      0 0 0 1px var(--separator),
+      0 20px 60px rgb(0 0 0 / 0.08);
+  }
+}

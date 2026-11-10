@@ -1,0 +1,26 @@
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: calc(var(--tabbar-height) + var(--safe-bottom) + 16px);
+  z-index: 300;
+  max-width: calc(min(100vw, var(--app-width)) - 48px);
+  padding: 12px 18px;
+  border-radius: 14px;
+  background: var(--text);
+  color: var(--bg);
+  font-size: 14px;
+  font-weight: 500;
+  text-align: center;
+  box-shadow: 0 8px 24px rgb(0 0 0 / 0.2);
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-50%, 12px);
+  transition:
+    opacity 200ms,
+    transform 200ms var(--ease);
+}
+
+.visible {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}

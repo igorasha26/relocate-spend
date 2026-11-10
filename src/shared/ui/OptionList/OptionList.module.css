@@ -1,0 +1,83 @@
+.list {
+  display: flex;
+  flex-direction: column;
+}
+
+.cards {
+  gap: 8px;
+}
+
+.grouped {
+  border-radius: var(--radius-lg);
+  background: var(--sheet-option);
+  overflow: hidden;
+}
+
+.option {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  min-height: 56px;
+  padding: 10px 16px;
+  text-align: left;
+  transition: background-color 150ms;
+}
+
+.cards .option {
+  border-radius: var(--radius-md);
+  background: var(--sheet-option);
+}
+
+.grouped .option {
+  min-height: 56px;
+  position: relative;
+}
+
+.grouped .option + .option::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 40px;
+  right: 16px;
+  height: 1px;
+  background: var(--separator);
+}
+
+.option:active {
+  background: var(--surface-3);
+}
+
+.text {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  flex: 1;
+  min-width: 0;
+}
+
+.title {
+  font-size: 17px;
+  font-weight: 500;
+}
+
+.grouped .title {
+  font-size: 16px;
+}
+
+.accent {
+  color: var(--accent-text);
+}
+
+.danger {
+  color: var(--danger);
+}
+
+.subtitle {
+  font-size: 13px;
+  color: var(--text-2);
+}
+
+.check {
+  color: var(--accent-text);
+}

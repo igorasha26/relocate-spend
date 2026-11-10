@@ -1,0 +1,17 @@
+.top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.current {
+  font-size: 15px;
+  color: var(--text-2);
+}
+
+.note {
+  margin-top: 24px;
+  font-size: 13px;
+  color: var(--text-2);
+}
