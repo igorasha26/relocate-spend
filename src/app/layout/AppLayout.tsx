@@ -1,6 +1,8 @@
 import { lazy, Suspense } from 'react';
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import { InstallPromptAuto } from '@/features/install-prompt';
+import { OnboardingAuto, useOnboardingDone } from '@/features/onboarding';
+import { FEATURES } from '@/shared/config/features';
 import { routes } from '@/shared/config/routes';
 import { ErrorBoundary } from '../ErrorBoundary';
 import styles from './AppLayout.module.css';
@@ -23,6 +25,7 @@ const FULLSCREEN: string[] = [routes.scan];
 export function AppLayout() {
   const { pathname } = useLocation();
   const showTabBar = !FULLSCREEN.includes(pathname);
+  const onboardingDone = useOnboardingDone();
 
   return (
     <div className={styles.app}>
@@ -36,11 +39,15 @@ export function AppLayout() {
               <Route path={routes.add} element={<AddExpensePage />} />
               <Route path="/expense/:id" element={<ExpenseDetailsPage />} />
               <Route path="/expense/:id/edit" element={<EditExpensePage />} />
-              <Route path={routes.scan} element={<ScanPage />} />
-              <Route path={routes.scanReview} element={<ReceiptReviewPage />} />
+              {/* Выключенные на бета-тесте функции: прямые ссылки уводят на рабочие экраны */}
+              <Route path={routes.scan} element={FEATURES.qrScan ? <ScanPage /> : <Navigate to={routes.add} replace />} />
+              <Route
+                path={routes.scanReview}
+                element={FEATURES.qrScan ? <ReceiptReviewPage /> : <Navigate to={routes.add} replace />}
+              />
               <Route path={routes.profile} element={<ProfilePage />} />
               <Route path={routes.categories} element={<CategoriesPage />} />
-              <Route path={routes.pro} element={<ProPage />} />
+              <Route path={routes.pro} element={FEATURES.pro ? <ProPage /> : <Navigate to={routes.profile} replace />} />
               <Route path="*" element={<Navigate to={routes.home} replace />} />
             </Routes>
             </div>
@@ -48,8 +55,9 @@ export function AppLayout() {
         </ErrorBoundary>
       </main>
       {showTabBar && <TabBar />}
-      {/* Подсказка «На главный экран» при первом заходе с телефона (не поверх камеры) */}
-      <InstallPromptAuto enabled={showTabBar} />
+      {/* Первый запуск: сначала обучение, потом подсказка «На главный экран» (не поверх камеры) */}
+      <OnboardingAuto />
+      <InstallPromptAuto enabled={showTabBar && onboardingDone} />
     </div>
   );
 }

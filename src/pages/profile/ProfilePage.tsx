@@ -1,10 +1,12 @@
 import { useState, type CSSProperties } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAppState, useScanQuota } from '@/store';
+import { FEATURES } from '@/shared/config/features';
 import { APP_VERSION, FREE_SCAN_LIMIT, routes } from '@/shared/config/routes';
 import { LANGUAGE_META, LANGUAGES, useI18n } from '@/shared/i18n';
 import { today } from '@/shared/lib/date';
 import { InstallSheet, isStandalone } from '@/features/install-prompt';
+import { Onboarding } from '@/features/onboarding';
 import { usePeriodLabels } from '@/features/period';
 import { Icon, InfoCard, ListGroup, ListRow, Page, PageHeader, SectionLabel } from '@/shared/ui';
 import { PreferenceSheets, type PreferenceSheet } from './PreferenceSheets';
@@ -19,6 +21,7 @@ export function ProfilePage() {
   const quota = useScanQuota(FREE_SCAN_LIMIT);
   const [sheet, setSheet] = useState<PreferenceSheet>(null);
   const [installOpen, setInstallOpen] = useState(false);
+  const [guideOpen, setGuideOpen] = useState(false);
   // Уже открыто с главного экрана — пункт не нужен
   const [standalone] = useState(isStandalone);
 
@@ -50,24 +53,27 @@ export function ProfilePage() {
         </p>
       </section>
 
-      <section className={styles.plan}>
-        <div className={styles.planText}>
-          <p className={styles.planBadge}>{t('profile.free')}</p>
-          <p className={styles.planTitle}>{t('profile.scans', { used: scans, limit: FREE_SCAN_LIMIT })}</p>
-          <p className={styles.planHint}>{t('profile.scansHint', { month: labels.monthIn(now) })}</p>
-          <div
-            className={styles.progress}
-            role="progressbar"
-            aria-valuemin={0}
-            aria-valuemax={FREE_SCAN_LIMIT}
-            aria-valuenow={scans}
-            style={{ '--progress': `${progress * 100}%` } as CSSProperties}
-          />
-        </div>
-        <button type="button" className={styles.planButton} onClick={() => navigate(routes.pro)}>
-          {t('profile.wantPro')}
-        </button>
-      </section>
+      {/* Тариф и лимит сканов — после бета-теста (FEATURES.pro) */}
+      {FEATURES.pro && (
+        <section className={styles.plan}>
+          <div className={styles.planText}>
+            <p className={styles.planBadge}>{t('profile.free')}</p>
+            <p className={styles.planTitle}>{t('profile.scans', { used: scans, limit: FREE_SCAN_LIMIT })}</p>
+            <p className={styles.planHint}>{t('profile.scansHint', { month: labels.monthIn(now) })}</p>
+            <div
+              className={styles.progress}
+              role="progressbar"
+              aria-valuemin={0}
+              aria-valuemax={FREE_SCAN_LIMIT}
+              aria-valuenow={scans}
+              style={{ '--progress': `${progress * 100}%` } as CSSProperties}
+            />
+          </div>
+          <button type="button" className={styles.planButton} onClick={() => navigate(routes.pro)}>
+            {t('profile.wantPro')}
+          </button>
+        </section>
+      )}
 
       <section>
         <SectionLabel>{t('profile.preferences')}</SectionLabel>
@@ -97,16 +103,17 @@ export function ProfilePage() {
         </ListGroup>
       </section>
 
-      {!standalone && (
-        <ListGroup>
+      <ListGroup>
+        <ListRow leading={<Icon name="book" />} title={t('onboarding.profileRow')} chevron onClick={() => setGuideOpen(true)} />
+        {!standalone && (
           <ListRow
             leading={<Icon name="smartphone" />}
             title={t('install.profileRow')}
             chevron
             onClick={() => setInstallOpen(true)}
           />
-        </ListGroup>
-      )}
+        )}
+      </ListGroup>
 
       <InfoCard
         title={t('profile.languageCard')}
@@ -117,6 +124,7 @@ export function ProfilePage() {
 
       <PreferenceSheets open={sheet} onClose={() => setSheet(null)} />
       <InstallSheet open={installOpen} onClose={() => setInstallOpen(false)} />
+      <Onboarding open={guideOpen} onClose={() => setGuideOpen(false)} />
     </Page>
   );
 }
