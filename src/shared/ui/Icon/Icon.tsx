@@ -125,6 +125,28 @@ const ICONS = {
     </>
   ),
   check: <path d="m5 12.5 4.5 4.5L19 7.5" />,
+  /** «Поделиться» в Safari: квадрат со стрелкой вверх */
+  share: <path d="M12 3.5v11M8 7.5l4-4 4 4M8.5 10.5H7a1.5 1.5 0 0 0-1.5 1.5v7A1.5 1.5 0 0 0 7 20.5h10a1.5 1.5 0 0 0 1.5-1.5v-7A1.5 1.5 0 0 0 17 10.5h-1.5" />,
+  plusSquare: (
+    <>
+      <rect x="4" y="4" width="16" height="16" rx="4" />
+      <path d="M12 8.5v7M8.5 12h7" />
+    </>
+  ),
+  moreVertical: (
+    <>
+      <circle cx="12" cy="6" r="1.6" fill="currentColor" stroke="none" />
+      <circle cx="12" cy="12" r="1.6" fill="currentColor" stroke="none" />
+      <circle cx="12" cy="18" r="1.6" fill="currentColor" stroke="none" />
+    </>
+  ),
+  smartphone: (
+    <>
+      <rect x="6.5" y="3" width="11" height="18" rx="2.5" />
+      <path d="M10.5 17.5h3" />
+    </>
+  ),
+  download: <path d="M12 4v11M7.5 10.5 12 15l4.5-4.5M5 19.5h14" />,
   more: (
     <>
       <circle cx="6" cy="12" r="1.6" fill="currentColor" stroke="none" />

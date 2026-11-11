@@ -1,5 +1,6 @@
 import { lazy, Suspense } from 'react';
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
+import { InstallPromptAuto } from '@/features/install-prompt';
 import { routes } from '@/shared/config/routes';
 import { ErrorBoundary } from '../ErrorBoundary';
 import styles from './AppLayout.module.css';
@@ -47,6 +48,8 @@ export function AppLayout() {
         </ErrorBoundary>
       </main>
       {showTabBar && <TabBar />}
+      {/* Подсказка «На главный экран» при первом заходе с телефона (не поверх камеры) */}
+      <InstallPromptAuto enabled={showTabBar} />
     </div>
   );
 }

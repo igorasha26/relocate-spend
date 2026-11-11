@@ -4,6 +4,7 @@ import { useAppState, useScanQuota } from '@/store';
 import { APP_VERSION, FREE_SCAN_LIMIT, routes } from '@/shared/config/routes';
 import { LANGUAGE_META, LANGUAGES, useI18n } from '@/shared/i18n';
 import { today } from '@/shared/lib/date';
+import { InstallSheet, isStandalone } from '@/features/install-prompt';
 import { usePeriodLabels } from '@/features/period';
 import { Icon, InfoCard, ListGroup, ListRow, Page, PageHeader, SectionLabel } from '@/shared/ui';
 import { PreferenceSheets, type PreferenceSheet } from './PreferenceSheets';
@@ -17,6 +18,9 @@ export function ProfilePage() {
   const { settings, categories } = useAppState();
   const quota = useScanQuota(FREE_SCAN_LIMIT);
   const [sheet, setSheet] = useState<PreferenceSheet>(null);
+  const [installOpen, setInstallOpen] = useState(false);
+  // Уже открыто с главного экрана — пункт не нужен
+  const [standalone] = useState(isStandalone);
 
   const now = today();
   const scans = quota.used;
@@ -93,6 +97,17 @@ export function ProfilePage() {
         </ListGroup>
       </section>
 
+      {!standalone && (
+        <ListGroup>
+          <ListRow
+            leading={<Icon name="smartphone" />}
+            title={t('install.profileRow')}
+            chevron
+            onClick={() => setInstallOpen(true)}
+          />
+        </ListGroup>
+      )}
+
       <InfoCard
         title={t('profile.languageCard')}
         text={LANGUAGES.map((code) => LANGUAGE_META[code].nativeName).join('  ·  ')}
@@ -101,6 +116,7 @@ export function ProfilePage() {
       <p className={styles.version}>{t('profile.version', { version: APP_VERSION })}</p>
 
       <PreferenceSheets open={sheet} onClose={() => setSheet(null)} />
+      <InstallSheet open={installOpen} onClose={() => setInstallOpen(false)} />
     </Page>
   );
 }
