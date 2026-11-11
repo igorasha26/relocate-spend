@@ -3,7 +3,7 @@ import { useCategoryName } from '@/entities/category';
 import { inRange, sumIn, totalsByCategory, type Expense } from '@/entities/expense';
 import { CurrencySheet } from '@/features/currency-picker';
 import { shiftPeriod, usePeriodLabels, type Period } from '@/features/period';
-import { useCategories } from '@/store';
+import { useActions, useCategories, useSettings } from '@/store';
 import type { Currency } from '@/shared/config/currency';
 import { useAnimatedNumber } from '@/shared/hooks/useAnimatedNumber';
 import { useHorizontalSwipe } from '@/shared/hooks/useHorizontalSwipe';
@@ -47,9 +47,9 @@ const MAX_SLICES = 6;
 export function SpendingOverview({
   period,
   previous,
-  allExpenses,
-  expenses,
-  previousExpenses,
+  allExpenses: allRaw,
+  expenses: periodRaw,
+  previousExpenses: previousRaw,
   currency,
   onCurrencyChange,
   onShowCategory,
@@ -60,6 +60,31 @@ export function SpendingOverview({
   const labels = usePeriodLabels();
   const categories = useCategories();
   const categoryName = useCategoryName();
+  const { hiddenCategories } = useSettings();
+  const { toggleCategoryHidden } = useActions();
+
+  /* ---- «Глазок»: скрытые категории не участвуют ни в кольце, ни в итогах, ни в столбцах ---- */
+  const hiddenKey = hiddenCategories.join(',');
+  const { allExpenses, expenses, previousExpenses, hiddenTotals } = useMemo(() => {
+    const hidden = new Set(hiddenCategories);
+    const visible = (list: Expense[]) => (hidden.size ? list.filter((e) => !hidden.has(e.categoryId)) : list);
+    return {
+      allExpenses: visible(allRaw),
+      expenses: visible(periodRaw),
+      previousExpenses: visible(previousRaw),
+      // Скрытые категории, в которых в этом периоде есть траты, — их плашки остаются (приглушённые)
+      hiddenTotals: hidden.size
+        ? totalsByCategory(periodRaw.filter((e) => hidden.has(e.categoryId)), currency)
+        : [],
+    };
+    // hiddenKey отражает содержимое hiddenCategories
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hiddenKey, allRaw, periodRaw, previousRaw, currency]);
+  const hiddenSum = hiddenTotals.reduce((sum, x) => sum + x.total, 0);
+  const hiddenChips = hiddenTotals.map((x) => {
+    const c = categories.find((cat) => cat.id === x.categoryId);
+    return { id: x.categoryId, value: x.total, color: c?.color ?? 'c7', label: categoryName.short(c) };
+  });
   const [mode, setMode] = useSessionState<'pie' | 'bars'>('home.chart', 'pie');
   const [currencyOpen, setCurrencyOpen] = useState(false);
   const [categoryId, setCategoryId] = useState<string | null>(null);
@@ -162,6 +187,17 @@ export function SpendingOverview({
                 })}
           </p>
         )}
+        {hiddenChips.length > 0 && (
+          <p className={styles.notCounted}>
+            <Icon name="eyeOff" size={13} strokeWidth={2.2} />
+            <span>
+              {t('home.notCounted', {
+                names: hiddenChips.map((c) => c.label).join(', '),
+                amount: fmt.money(hiddenSum, currency),
+              })}
+            </span>
+          </p>
+        )}
       </section>
 
       <section className={styles.chartCard}>
@@ -190,8 +226,8 @@ export function SpendingOverview({
               next={rings.next}
             />
 
-            {/* Категории и суммы плашками под кольцом */}
-            {slices.length > 0 && (
+            {/* Категории и суммы плашками под кольцом. Нажатие — «глазок»: не учитывать / вернуть */}
+            {(slices.length > 0 || hiddenChips.length > 0) && (
               <ul className={styles.chips}>
                 {slices.map((s) => (
                   <li key={s.id}>
@@ -199,9 +235,25 @@ export function SpendingOverview({
                       type="button"
                       className={styles.chip}
                       disabled={s.id === '__others'}
-                      onClick={() => setCategoryId(s.id)}
+                      onClick={() => toggleCategoryHidden(s.id, true)}
+                      aria-label={s.id === '__others' ? undefined : t('home.chipHide', { name: s.label })}
                     >
                       <span className={styles.legendDot} style={{ background: s.color === 'muted' ? 'var(--text-3)' : `var(--cat-${s.color})` }} />
+                      <span className={styles.chipName}>{s.label}</span>
+                      <span className={styles.chipValue}>{fmt.number(s.value, 0)}</span>
+                    </button>
+                  </li>
+                ))}
+                {hiddenChips.map((s) => (
+                  <li key={s.id}>
+                    <button
+                      type="button"
+                      className={cn(styles.chip, styles.chipHidden)}
+                      onClick={() => toggleCategoryHidden(s.id, false)}
+                      aria-label={t('home.chipShow', { name: s.label })}
+                      aria-pressed="true"
+                    >
+                      <Icon name="eyeOff" size={14} strokeWidth={2.2} className={styles.chipEye} />
                       <span className={styles.chipName}>{s.label}</span>
                       <span className={styles.chipValue}>{fmt.number(s.value, 0)}</span>
                     </button>
@@ -210,7 +262,10 @@ export function SpendingOverview({
               </ul>
             )}
             {top && (
-              <p className={styles.chartFooter}>{t('home.topShare', { category: top.label, percent: topShare })}</p>
+              <p className={styles.chartFooter}>
+                {t('home.topShare', { category: top.label, percent: topShare })}
+                {hiddenChips.length === 0 && <span className={styles.hint}>{t('home.hideHint')}</span>}
+              </p>
             )}
           </>
         ) : (

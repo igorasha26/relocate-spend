@@ -12,6 +12,8 @@ export interface Settings {
   language: Language;
   /** Дата первого запуска — «С вами с …». */
   createdAt: ISODate;
+  /** Категории, которые не учитываются в кольце и итогах (выключены «глазком» на главной). */
+  hiddenCategories: string[];
 }
 
 /**
@@ -53,6 +55,7 @@ export type Action =
   | { type: 'category/update'; payload: { id: string; patch: Partial<Omit<Category, 'id' | 'builtIn'>> } }
   | { type: 'category/remove'; payload: { id: string } }
   | { type: 'settings/update'; payload: Partial<Settings> }
+  | { type: 'category/toggleHidden'; payload: { id: string } }
   | { type: 'scan/record'; payload: ScanRecord }
   /** Изменения, пришедшие из облака (другое устройство или первый вход). */
   | { type: 'sync/apply'; payload: SyncPatch }

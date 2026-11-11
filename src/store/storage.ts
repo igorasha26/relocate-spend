@@ -94,6 +94,9 @@ export function sanitizeSettings(raw: unknown): Settings {
     theme: theme.includes(raw.theme as ThemePreference) ? (raw.theme as ThemePreference) : defaults.theme,
     language: LANGUAGES.includes(raw.language as Language) ? (raw.language as Language) : defaults.language,
     createdAt: isISODate(raw.createdAt) ? raw.createdAt : defaults.createdAt,
+    hiddenCategories: Array.isArray(raw.hiddenCategories)
+      ? [...new Set(raw.hiddenCategories.filter((id): id is string => typeof id === 'string'))]
+      : [],
   };
 }
 

@@ -15,6 +15,7 @@ export function createDefaultState(): PersistedState {
       theme: 'system',
       language: 'ru',
       createdAt: today(),
+      hiddenCategories: [],
     },
     scans: [],
   };
@@ -90,6 +91,19 @@ export function reducer(state: AppState, action: Action): AppState {
         expenses: state.expenses.map((e) =>
           e.categoryId === id ? { ...e, categoryId: FALLBACK_CATEGORY_ID } : e,
         ),
+        settings: { ...state.settings, hiddenCategories: state.settings.hiddenCategories.filter((h) => h !== id) },
+      };
+    }
+
+    case 'category/toggleHidden': {
+      const { id } = action.payload;
+      const hidden = state.settings.hiddenCategories;
+      return {
+        ...state,
+        settings: {
+          ...state.settings,
+          hiddenCategories: hidden.includes(id) ? hidden.filter((h) => h !== id) : [...hidden, id],
+        },
       };
     }
 

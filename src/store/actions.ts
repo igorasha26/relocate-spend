@@ -77,6 +77,14 @@ export function createActions(dispatch: (action: Action) => void) {
       dispatch({ type: 'scan/record', payload: { id: hashString(qrText), date: today() } });
     },
 
+    /** «Глазок» на главной: не учитывать категорию в кольце и итогах (или вернуть). */
+    toggleCategoryHidden(id: string, hidden: boolean) {
+      dispatch({ type: 'category/toggleHidden', payload: { id } });
+      analytics.track(hidden ? 'category_hidden' : 'category_shown', {
+        category: DEFAULT_CATEGORIES.some((c) => c.id === id) ? id : 'custom',
+      });
+    },
+
     updateSettings(patch: Partial<Settings>) {
       dispatch({ type: 'settings/update', payload: patch });
     },
