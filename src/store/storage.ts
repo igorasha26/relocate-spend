@@ -42,7 +42,7 @@ function sanitizeItem(raw: unknown): ExpenseItem | null {
   return { id: str(raw.id) ?? createId(), name, price };
 }
 
-function sanitizeExpense(raw: unknown, categoryIds: Set<string>): Expense | null {
+export function sanitizeExpense(raw: unknown, categoryIds: Set<string>): Expense | null {
   if (!isObject(raw)) return null;
   const amount = num(raw.amount);
   const date = typeof raw.date === 'string' ? raw.date.slice(0, 10) : undefined;
@@ -67,7 +67,7 @@ function sanitizeExpense(raw: unknown, categoryIds: Set<string>): Expense | null
   };
 }
 
-function sanitizeCategory(raw: unknown): Category | null {
+export function sanitizeCategory(raw: unknown): Category | null {
   if (!isObject(raw)) return null;
   const id = str(raw.id);
   if (!id) return null;
@@ -85,7 +85,7 @@ function sanitizeCategory(raw: unknown): Category | null {
   };
 }
 
-function sanitizeSettings(raw: unknown): Settings {
+export function sanitizeSettings(raw: unknown): Settings {
   const defaults = createDefaultState().settings;
   if (!isObject(raw)) return defaults;
   const theme: ThemePreference[] = ['light', 'dark', 'system'];

@@ -2,9 +2,11 @@ import { createContext, useContext } from 'react';
 import { today } from '@/shared/lib/date';
 import { hashString } from '@/shared/lib/id';
 import type { Actions } from './actions';
+import type { SyncApi } from './sync/useCloudSync';
 import type { AppState } from './types';
 
 export const StateContext = createContext<AppState | null>(null);
+export const SyncContext = createContext<SyncApi | null>(null);
 export const ActionsContext = createContext<(Actions & { reload: () => void }) | null>(null);
 
 export function useAppState(): AppState {
@@ -48,4 +50,11 @@ export function useScanQuota(limit: number) {
     /** Повторный скан уже засчитанного чека разрешён и при исчерпанном лимите. */
     canScan: (qrText: string) => used < limit || scans.some((s) => s.id === hashString(qrText)),
   };
+}
+
+/** Облачная синхронизация: статус, выход, удаление аккаунта. */
+export function useSync(): SyncApi {
+  const ctx = useContext(SyncContext);
+  if (!ctx) throw new Error('useSync must be used within StoreProvider');
+  return ctx;
 }

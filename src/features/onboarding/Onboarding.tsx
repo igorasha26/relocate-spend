@@ -22,14 +22,16 @@ const SLIDES: Slide[] = [
 
 interface Props {
   open: boolean;
-  onClose: () => void;
+  /** completed — дошли до последнего слайда и нажали «Начать»; slide — номер слайда (с 1). */
+  onClose: (completed: boolean, slide: number) => void;
 }
 
 /** Обучение при первом запуске: слайды листаются свайпом или кнопкой «Далее». */
 export function Onboarding({ open, onClose }: Props) {
   const { t } = useI18n();
-  const { mounted, visible, panelRef } = useModal(open, onClose);
   const [index, setIndex] = useState(0);
+  const skip = () => onClose(false, index + 1);
+  const { mounted, visible, panelRef } = useModal(open, skip);
   const [wasOpen, setWasOpen] = useState(open);
   // При каждом открытии начинаем с первого слайда
   if (open !== wasOpen) {
@@ -67,7 +69,7 @@ export function Onboarding({ open, onClose }: Props) {
         <header className={styles.top}>
           {index === 0 ? <span className={styles.beta}>{t('onboarding.beta')}</span> : <span />}
           {!last && (
-            <button type="button" className={styles.skip} onClick={onClose}>
+            <button type="button" className={styles.skip} onClick={skip}>
               {t('onboarding.skip')}
             </button>
           )}
@@ -98,7 +100,7 @@ export function Onboarding({ open, onClose }: Props) {
               />
             ))}
           </div>
-          <Button onClick={() => (last ? onClose() : setIndex(index + 1))}>
+          <Button onClick={() => (last ? onClose(true, index + 1) : setIndex(index + 1))}>
             {last ? t('onboarding.start') : t('onboarding.next')}
           </Button>
         </footer>

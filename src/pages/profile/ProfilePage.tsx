@@ -1,20 +1,24 @@
 import { useState, type CSSProperties } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAppState, useScanQuota } from '@/store';
-import { FEATURES } from '@/shared/config/features';
+import { analytics } from '@/shared/analytics';
+import { ENV, HAS_BACKEND } from '@/shared/config/env';
+import { useFeature } from '@/shared/config/features';
 import { APP_VERSION, FREE_SCAN_LIMIT, routes } from '@/shared/config/routes';
 import { LANGUAGE_META, LANGUAGES, useI18n } from '@/shared/i18n';
 import { today } from '@/shared/lib/date';
 import { InstallSheet, isStandalone } from '@/features/install-prompt';
+import { FeedbackSheet } from '@/features/feedback';
 import { Onboarding } from '@/features/onboarding';
 import { usePeriodLabels } from '@/features/period';
-import { Icon, InfoCard, ListGroup, ListRow, Page, PageHeader, SectionLabel } from '@/shared/ui';
+import { Icon, InfoCard, ListGroup, ListRow, Page, PageHeader, SectionLabel, Switch } from '@/shared/ui';
+import { AccountSection } from './AccountSection';
 import { PreferenceSheets, type PreferenceSheet } from './PreferenceSheets';
 import styles from './ProfilePage.module.css';
 
 /** 06 · Профиль и настройки. */
 export function ProfilePage() {
-  const { t, fmt } = useI18n();
+  const { t } = useI18n();
   const navigate = useNavigate();
   const labels = usePeriodLabels();
   const { settings, categories } = useAppState();
@@ -22,6 +26,9 @@ export function ProfilePage() {
   const [sheet, setSheet] = useState<PreferenceSheet>(null);
   const [installOpen, setInstallOpen] = useState(false);
   const [guideOpen, setGuideOpen] = useState(false);
+  const [feedbackOpen, setFeedbackOpen] = useState(false);
+  const [statsOn, setStatsOn] = useState(() => !analytics.isOptedOut());
+  const pro = useFeature('pro');
   // Уже открыто с главного экрана — пункт не нужен
   const [standalone] = useState(isStandalone);
 
@@ -39,22 +46,10 @@ export function ProfilePage() {
     <Page>
       <PageHeader title={t('profile.title')} />
 
-      <section className={styles.account}>
-        <span className={styles.accountIcon}>
-          <Icon name="mail" size={22} />
-        </span>
-        <div className={styles.accountText}>
-          <p className={styles.accountTitle}>{t('profile.localProfile')}</p>
-          <p className={styles.accountSince}>{t('profile.since', { date: fmt.dayMonthYear(settings.createdAt) })}</p>
-        </div>
-        <p className={styles.saved}>
-          <span className={styles.savedDot} aria-hidden />
-          {t('profile.saved')}
-        </p>
-      </section>
+      <AccountSection />
 
-      {/* Тариф и лимит сканов — после бета-теста (FEATURES.pro) */}
-      {FEATURES.pro && (
+      {/* Тариф и лимит сканов — после бета-теста (флаг pro) */}
+      {pro && (
         <section className={styles.plan}>
           <div className={styles.planText}>
             <p className={styles.planBadge}>{t('profile.free')}</p>
@@ -104,6 +99,9 @@ export function ProfilePage() {
       </section>
 
       <ListGroup>
+        {HAS_BACKEND && (
+          <ListRow leading={<Icon name="message" />} title={t('feedback.row')} chevron onClick={() => setFeedbackOpen(true)} />
+        )}
         <ListRow leading={<Icon name="book" />} title={t('onboarding.profileRow')} chevron onClick={() => setGuideOpen(true)} />
         {!standalone && (
           <ListRow
@@ -113,18 +111,35 @@ export function ProfilePage() {
             onClick={() => setInstallOpen(true)}
           />
         )}
+        <ListRow leading={<Icon name="shield" />} title={t('privacy.row')} chevron onClick={() => navigate(routes.privacy)} />
       </ListGroup>
+
+      {analytics.isConfigured() && (
+        <Switch
+          checked={statsOn}
+          onChange={(on) => {
+            setStatsOn(on);
+            analytics.setOptOut(!on);
+          }}
+          label={t('profile.analytics')}
+          hint={t('profile.analyticsHint')}
+        />
+      )}
 
       <InfoCard
         title={t('profile.languageCard')}
         text={LANGUAGES.map((code) => LANGUAGE_META[code].nativeName).join('  ·  ')}
       />
 
-      <p className={styles.version}>{t('profile.version', { version: APP_VERSION })}</p>
+      <p className={styles.version}>
+        {t('profile.version', { version: APP_VERSION })}
+        {!ENV.isProduction && ` · ${t('profile.staging')}`}
+      </p>
 
       <PreferenceSheets open={sheet} onClose={() => setSheet(null)} />
       <InstallSheet open={installOpen} onClose={() => setInstallOpen(false)} />
       <Onboarding open={guideOpen} onClose={() => setGuideOpen(false)} />
+      <FeedbackSheet open={feedbackOpen} onClose={() => setFeedbackOpen(false)} />
     </Page>
   );
 }

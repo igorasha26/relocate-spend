@@ -25,7 +25,9 @@ self.addEventListener('activate', (event) => {
 
 self.addEventListener('fetch', (event) => {
   const { request } = event;
-  if (request.method !== 'GET' || new URL(request.url).origin !== self.location.origin) return;
+  const url = new URL(request.url);
+  // Чужие адреса (Supabase, PostHog) и version.json (проверка обновлений) — всегда напрямую в сеть
+  if (request.method !== 'GET' || url.origin !== self.location.origin || url.pathname.endsWith('/version.json')) return;
 
   // Переходы по страницам приложения (SPA): сеть → кеш index.html
   if (request.mode === 'navigate') {

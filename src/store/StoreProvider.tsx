@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useMemo, useReducer, useRef, type ReactNode } from 'react';
 import { createActions } from './actions';
-import { ActionsContext, StateContext } from './context';
+import { ActionsContext, StateContext, SyncContext } from './context';
 import { initialState, reducer } from './reducer';
 import { localStorageRepository, type StateRepository } from './storage';
+import { useCloudSync } from './sync/useCloudSync';
 import type { PersistedState } from './types';
 
 interface Props {
@@ -39,10 +40,13 @@ export function StoreProvider({ children, repository = localStorageRepository }:
   }, [repository, status, version, expenses, categories, settings, scans]);
 
   const actions = useMemo(() => ({ ...createActions(dispatch), reload: load }), [load]);
+  const sync = useCloudSync(state, dispatch);
 
   return (
     <StateContext.Provider value={state}>
-      <ActionsContext.Provider value={actions}>{children}</ActionsContext.Provider>
+      <ActionsContext.Provider value={actions}>
+        <SyncContext.Provider value={sync}>{children}</SyncContext.Provider>
+      </ActionsContext.Provider>
     </StateContext.Provider>
   );
 }

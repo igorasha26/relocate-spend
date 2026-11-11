@@ -1,0 +1,105 @@
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.lead {
+  font-size: 15px;
+  line-height: 1.45;
+  color: var(--text-2);
+}
+
+.lead b {
+  color: var(--text);
+  font-weight: 600;
+  word-break: break-all;
+}
+
+.error {
+  padding: 12px 14px;
+  border-radius: var(--radius-md, 12px);
+  background: color-mix(in srgb, var(--danger, #e5484d) 12%, transparent);
+  color: var(--danger, #e5484d);
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+  font-size: 14px;
+  color: var(--text-2);
+}
+
+.link {
+  align-self: center;
+  padding: 6px 4px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--accent-text);
+}
+
+.link:disabled {
+  color: var(--text-2);
+  font-weight: 500;
+}
+
+.forgot {
+  align-self: flex-end;
+  margin-top: -8px;
+}
+
+.consent {
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--text-2);
+  text-align: center;
+}
+
+.consent a {
+  color: var(--accent-text);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.eye {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  margin-right: -6px;
+  color: var(--text-2);
+}
+
+.code {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.codeField input {
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: 0.3em;
+  font-variant-numeric: tabular-nums;
+}
+
+.busy {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.row .link {
+  padding: 0;
+}

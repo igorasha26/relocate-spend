@@ -1,0 +1,13 @@
+# Cloudflare Pages: заголовки ответов.
+# sw.js и version.json не кешируются браузером — иначе обновления доходили бы с опозданием.
+/sw.js
+  Cache-Control: no-cache
+/version.json
+  Cache-Control: no-store
+/
+  Cache-Control: no-cache
+/index.html
+  Cache-Control: no-cache
+# Файлы сборки с хешем в имени не меняются — кешируем надолго
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable

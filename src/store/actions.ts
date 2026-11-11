@@ -1,5 +1,6 @@
-import { DEFAULT_CUSTOM_FIELDS, type Category } from '@/entities/category';
+import { DEFAULT_CATEGORIES, DEFAULT_CUSTOM_FIELDS, type Category } from '@/entities/category';
 import type { Expense, ExpenseInput, ExpenseItem } from '@/entities/expense';
+import { analytics } from '@/shared/analytics';
 import { today } from '@/shared/lib/date';
 import { createId, hashString } from '@/shared/lib/id';
 import { ratesService } from '@/shared/lib/money';
@@ -21,6 +22,13 @@ export function createActions(dispatch: (action: Action) => void) {
         updatedAt: now,
       };
       dispatch({ type: 'expense/add', payload: expense });
+      analytics.track('expense_added', {
+        source: expense.source,
+        items: expense.items.length,
+        currency: expense.currency,
+        // названия своих категорий не отправляем — только «custom»
+        category: DEFAULT_CATEGORIES.some((c) => c.id === expense.categoryId) ? expense.categoryId : 'custom',
+      });
       return expense;
     },
 
@@ -29,10 +37,12 @@ export function createActions(dispatch: (action: Action) => void) {
       // Сменилась валюта или дата — фиксируем курс на новую дату покупки.
       if (input.currency) patch.eurRate = ratesService.getEurRate(input.currency, input.date);
       dispatch({ type: 'expense/update', payload: { id, patch } });
+      analytics.track('expense_edited');
     },
 
     removeExpense(id: string) {
       dispatch({ type: 'expense/remove', payload: { id } });
+      analytics.track('expense_deleted');
     },
 
     addItem(expenseId: string, item: Omit<ExpenseItem, 'id'>) {
@@ -50,6 +60,7 @@ export function createActions(dispatch: (action: Action) => void) {
     addCategory(input: Pick<Category, 'name' | 'color' | 'icon'>): Category {
       const category: Category = { ...input, id: createId(), fields: DEFAULT_CUSTOM_FIELDS, builtIn: false };
       dispatch({ type: 'category/add', payload: category });
+      analytics.track('category_created');
       return category;
     },
 

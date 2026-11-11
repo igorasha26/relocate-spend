@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { emptyDraft, ExpenseForm, useExpenseDraft } from '@/features/expense-form';
 import { useActions, useSettings } from '@/store';
-import { FEATURES } from '@/shared/config/features';
+import { analytics } from '@/shared/analytics';
+import { useFeature } from '@/shared/config/features';
 import { routes } from '@/shared/config/routes';
 import { useI18n } from '@/shared/i18n';
 import { Button, Icon, Page, PageHeader, Sheet, useToast } from '@/shared/ui';
@@ -17,6 +18,7 @@ export function AddExpensePage() {
   const { addExpense } = useActions();
   const form = useExpenseDraft(() => emptyDraft(baseCurrency));
   const [soonOpen, setSoonOpen] = useState(false);
+  const qrScan = useFeature('qrScan');
 
   return (
     <Page>
@@ -28,14 +30,21 @@ export function AddExpensePage() {
           <button
             type="button"
             className={styles.scanBanner}
-            onClick={() => (FEATURES.qrScan ? navigate(routes.scan) : setSoonOpen(true))}
+            onClick={() => {
+              if (qrScan) {
+                navigate(routes.scan);
+              } else {
+                analytics.track('scan_soon_tapped'); // насколько ждут сканер
+                setSoonOpen(true);
+              }
+            }}
           >
             <Icon name="scan" size={30} strokeWidth={1.6} />
             <span className={styles.scanText}>
               <span className={styles.scanTitle}>{t('form.scanTitle')}</span>
               <span className={styles.scanSubtitle}>{t('form.scanText')}</span>
             </span>
-            {!FEATURES.qrScan && <span className={styles.soonBadge}>{t('soon.badge')}</span>}
+            {!qrScan && <span className={styles.soonBadge}>{t('soon.badge')}</span>}
           </button>
         }
         onSubmit={(input) => {

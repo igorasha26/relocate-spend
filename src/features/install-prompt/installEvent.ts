@@ -1,4 +1,5 @@
 import { useSyncExternalStore } from 'react';
+import { analytics } from '@/shared/analytics';
 
 /** Событие Chrome/Edge на Android и десктопе: позволяет показать системное окно установки. */
 export interface BeforeInstallPromptEvent extends Event {
@@ -18,6 +19,7 @@ if (typeof window !== 'undefined') {
     notify();
   });
   window.addEventListener('appinstalled', () => {
+    analytics.track('install_accepted'); // Android/десктоп; на iPhone установку видно по standalone в app_opened
     deferred = null;
     notify();
   });

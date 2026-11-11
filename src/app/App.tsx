@@ -5,12 +5,14 @@ import { I18nProvider } from '@/shared/i18n';
 import { ToastProvider } from '@/shared/ui';
 import { ErrorBoundary } from './ErrorBoundary';
 import { AppLayout } from './layout/AppLayout';
+import { useAppLifecycle } from './useAppLifecycle';
 import { useApplyDocumentSettings } from './useApplyTheme';
 
 /** Связывает настройки из store с i18n и темой документа. */
 function SettingsBridge({ children }: { children: ReactNode }) {
   const { theme, language } = useSettings();
   useApplyDocumentSettings(theme, language);
+  useAppLifecycle();
   return <I18nProvider language={language}>{children}</I18nProvider>;
 }
 

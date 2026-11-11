@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { analytics } from '@/shared/analytics';
 import { InstallSheet } from './InstallSheet';
 import { detectPlatform, isStandalone } from './platform';
 
@@ -23,7 +24,10 @@ export function InstallPromptAuto({ enabled = true }: { enabled?: boolean }) {
 
   useEffect(() => {
     if (!enabled || isStandalone() || detectPlatform() === 'desktop' || alreadySeen()) return;
-    const timer = window.setTimeout(() => setOpen(true), DELAY_MS);
+    const timer = window.setTimeout(() => {
+      setOpen(true);
+      analytics.track('install_prompt_shown', { platform: detectPlatform() });
+    }, DELAY_MS);
     return () => window.clearTimeout(timer);
   }, [enabled]);
 

@@ -1,6 +1,8 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { App } from './app/App';
+import { startUpdateChecks } from './features/app-update';
+import { analytics } from './shared/analytics';
 import './app/styles/tokens.css';
 import './app/styles/base.css';
 
@@ -20,14 +22,9 @@ document.addEventListener(
 const container = document.getElementById('root');
 if (!container) throw new Error('Root element #root not found');
 
-// Офлайн-режим: только в production-сборке (в dev service worker мешал бы горячей перезагрузке)
-if (import.meta.env.PROD && 'serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register(`${import.meta.env.BASE_URL}sw.js`).catch((error: unknown) => {
-      console.warn('[sw] registration failed', error);
-    });
-  });
-}
+// Офлайн-режим (service worker) и проверка новых версий — только в production-сборке
+startUpdateChecks();
+analytics.init();
 
 createRoot(container).render(
   <StrictMode>

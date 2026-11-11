@@ -12,11 +12,17 @@ export const routes = {
   profile: '/profile',
   categories: '/profile/categories',
   pro: '/profile/pro',
+  /** Вход в аккаунт. */
+  login: '/auth',
+  signup: '/auth/signup',
+  resetPassword: '/auth/reset',
+  privacy: '/privacy',
   /** Главная с фильтром по категории. */
   homeWithCategory: (categoryId: string) => `/?category=${encodeURIComponent(categoryId)}`,
 } as const;
 
-export const APP_VERSION = '1.0';
+/** Версия для показа пользователю. */
+export const APP_VERSION = __APP_VERSION__;
 
 /** Лимит QR-чеков в месяц на бесплатном тарифе. */
 export const FREE_SCAN_LIMIT = 15;

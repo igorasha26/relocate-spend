@@ -53,4 +53,20 @@ export type Action =
   | { type: 'category/update'; payload: { id: string; patch: Partial<Omit<Category, 'id' | 'builtIn'>> } }
   | { type: 'category/remove'; payload: { id: string } }
   | { type: 'settings/update'; payload: Partial<Settings> }
-  | { type: 'scan/record'; payload: ScanRecord };
+  | { type: 'scan/record'; payload: ScanRecord }
+  /** Изменения, пришедшие из облака (другое устройство или первый вход). */
+  | { type: 'sync/apply'; payload: SyncPatch }
+  /** Выход из аккаунта: данные аккаунта убираются с устройства. */
+  | { type: 'sync/reset'; payload: PersistedState };
+
+interface EntityPatch<T> {
+  upsert: T[];
+  remove: string[];
+}
+
+export interface SyncPatch {
+  expenses: EntityPatch<Expense>;
+  categories: EntityPatch<Category>;
+  scans: EntityPatch<ScanRecord>;
+  settings?: Settings;
+}

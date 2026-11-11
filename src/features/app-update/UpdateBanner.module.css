@@ -1,0 +1,40 @@
+.banner {
+  position: fixed;
+  z-index: 60;
+  top: calc(env(safe-area-inset-top, 0px) + 8px);
+  left: 50%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: min(calc(100% - 24px), 420px);
+  padding: 8px 8px 8px 14px;
+  border-radius: 16px;
+  background: var(--text);
+  color: var(--bg);
+  box-shadow: 0 8px 24px rgb(0 0 0 / 0.18);
+  transform: translateX(-50%);
+  animation: drop 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.text {
+  flex: 1;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.button {
+  min-height: 34px;
+  padding: 0 14px;
+  border-radius: 10px;
+  background: var(--accent);
+  color: var(--on-accent, #fff);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+@keyframes drop {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -16px);
+  }
+}
