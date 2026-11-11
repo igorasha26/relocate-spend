@@ -437,11 +437,28 @@
   color: var(--text-3);
 }
 
-.notCounted {
+.totalLabel {
   display: flex;
   align-items: center;
-  gap: 5px;
-  margin-top: 6px;
-  font-size: 13px;
-  color: var(--text-2);
+  min-width: 0;
+  white-space: nowrap;
+}
+
+.notCounted {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+  margin-left: 8px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.hint:first-child {
+  margin-top: 0;
+}
+
+.notCountedText {
+  overflow: hidden;
+  text-overflow: ellipsis;
 }

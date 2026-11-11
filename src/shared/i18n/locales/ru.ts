@@ -103,7 +103,7 @@ export const ru = {
     topShare: '{category} — {percent}% всех расходов',
     othersSlice: 'Остальные',
     hideHint: 'Нажмите на категорию, чтобы не учитывать её в итогах',
-    notCounted: 'Не учтено: {names} · {amount}',
+    notCountedShort: '· без: {names}',
     chipHide: '{name}: нажмите, чтобы не учитывать в итогах',
     chipShow: '{name}: не учитывается, нажмите, чтобы вернуть',
     bucketTotal: 'За {range}: {amount}',

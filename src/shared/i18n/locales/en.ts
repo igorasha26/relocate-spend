@@ -99,7 +99,7 @@ export const en: Dictionary = {
     topShare: '{category} — {percent}% of all spending',
     othersSlice: 'Others',
     hideHint: 'Tap a category to leave it out of the totals',
-    notCounted: 'Not counted: {names} · {amount}',
+    notCountedShort: '· excluding: {names}',
     chipHide: '{name}: tap to leave out of the totals',
     chipShow: '{name}: not counted, tap to restore',
     bucketTotal: '{range}: {amount}',

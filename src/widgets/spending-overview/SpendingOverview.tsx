@@ -80,7 +80,6 @@ export function SpendingOverview({
     // hiddenKey отражает содержимое hiddenCategories
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hiddenKey, allRaw, periodRaw, previousRaw, currency]);
-  const hiddenSum = hiddenTotals.reduce((sum, x) => sum + x.total, 0);
   const hiddenChips = hiddenTotals.map((x) => {
     const c = categories.find((cat) => cat.id === x.categoryId);
     return { id: x.categoryId, value: x.total, color: c?.color ?? 'c7', label: categoryName.short(c) };
@@ -165,7 +164,18 @@ export function SpendingOverview({
   return (
     <>
       <section className={styles.summary}>
-        <p className={styles.totalLabel}>{labels.totalLabel(period)}</p>
+        {/* «Не учтено» — в той же строке, что и подпись: высота блока не меняется при скрытии категорий */}
+        <p className={styles.totalLabel}>
+          {labels.totalLabel(period)}
+          {hiddenChips.length > 0 && (
+            <span className={styles.notCounted}>
+              <Icon name="eyeOff" size={13} strokeWidth={2.2} />
+              <span className={styles.notCountedText}>
+                {t('home.notCountedShort', { names: hiddenChips.map((c) => c.label).join(', ') })}
+              </span>
+            </span>
+          )}
+        </p>
         <div className={styles.totalRow}>
           <span className={styles.total}>
             <AnimatedNumber value={total} />
@@ -185,17 +195,6 @@ export function SpendingOverview({
                   percent: Math.abs(delta),
                   prev: labels.previousLabel(previous),
                 })}
-          </p>
-        )}
-        {hiddenChips.length > 0 && (
-          <p className={styles.notCounted}>
-            <Icon name="eyeOff" size={13} strokeWidth={2.2} />
-            <span>
-              {t('home.notCounted', {
-                names: hiddenChips.map((c) => c.label).join(', '),
-                amount: fmt.money(hiddenSum, currency),
-              })}
-            </span>
           </p>
         )}
       </section>
@@ -261,10 +260,11 @@ export function SpendingOverview({
                 ))}
               </ul>
             )}
-            {top && (
+            {/* Подсказка видна всегда — высота карточки не прыгает при скрытии категорий */}
+            {(top || hiddenChips.length > 0) && (
               <p className={styles.chartFooter}>
-                {t('home.topShare', { category: top.label, percent: topShare })}
-                {hiddenChips.length === 0 && <span className={styles.hint}>{t('home.hideHint')}</span>}
+                {top && t('home.topShare', { category: top.label, percent: topShare })}
+                <span className={styles.hint}>{t('home.hideHint')}</span>
               </p>
             )}
           </>

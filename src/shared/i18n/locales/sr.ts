@@ -100,7 +100,7 @@ export const sr: Dictionary = {
     topShare: '{category} — {percent}% svih troškova',
     othersSlice: 'Ostalo',
     hideHint: 'Dodirnite kategoriju da je ne računate u ukupno',
-    notCounted: 'Nije uračunato: {names} · {amount}',
+    notCountedShort: '· bez: {names}',
     chipHide: '{name}: dodirnite da se ne računa u ukupno',
     chipShow: '{name}: ne računa se, dodirnite da vratite',
     bucketTotal: 'Za {range}: {amount}',
