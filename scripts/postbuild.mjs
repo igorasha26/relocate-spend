@@ -19,7 +19,7 @@ const walk = (dir) => {
   for (const name of readdirSync(dir)) {
     const path = join(dir, name);
     if (statSync(path).isDirectory()) walk(path);
-    else if (!/^(sw\.js|404\.html|version\.json|_headers|_redirects)$/.test(name) && !name.endsWith('.map')) files.push(`./${relative(dist, path).replace(/\\/g, '/')}`);
+    else if (!/^(sw\.js|404\.html|version\.json|og-image\.jpg|_headers|_redirects)$/.test(name) && !name.endsWith('.map')) files.push(`./${relative(dist, path).replace(/\\/g, '/')}`);
   }
 };
 walk(dist);
