@@ -1,9 +1,9 @@
 import { DEFAULT_CATEGORIES, DEFAULT_CUSTOM_FIELDS, type Category } from '@/entities/category';
 import type { Expense, ExpenseInput, ExpenseItem } from '@/entities/expense';
 import { analytics } from '@/shared/analytics';
-import { today } from '@/shared/lib/date';
+import { today, type ISODate } from '@/shared/lib/date';
 import { createId, hashString } from '@/shared/lib/id';
-import { getRatesFor } from '@/shared/lib/rates';
+import { getRatesFor, type RateTable } from '@/shared/lib/rates';
 import type { Action, Settings } from './types';
 
 /**
@@ -86,6 +86,11 @@ export function createActions(dispatch: (action: Action) => void) {
     /** Засчитать скан QR-чека (вызывается после успешного чтения чека). */
     recordScan(qrText: string) {
       dispatch({ type: 'scan/record', payload: { id: hashString(qrText), date: today() } });
+    },
+
+    /** Уточнить курсы трат по их датам (фоновая задача, не считается правкой). */
+    setExpenseRates(updates: { id: string; eurRate: number; rates: RateTable; ratesDate: ISODate }[]) {
+      if (updates.length) dispatch({ type: 'expense/setRates', payload: updates });
     },
 
     /** «Глазок» на главной: не учитывать категорию в кольце и итогах (или вернуть). */

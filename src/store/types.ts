@@ -3,6 +3,7 @@ import type { Expense, ExpenseItem } from '@/entities/expense';
 import type { Currency } from '@/shared/config/currency';
 import type { Language } from '@/shared/i18n';
 import type { ISODate } from '@/shared/lib/date';
+import type { RateTable } from '@/shared/lib/rates';
 
 export type ThemePreference = 'light' | 'dark' | 'system';
 
@@ -56,6 +57,8 @@ export type Action =
   | { type: 'category/remove'; payload: { id: string } }
   | { type: 'settings/update'; payload: Partial<Settings> }
   | { type: 'category/toggleHidden'; payload: { id: string } }
+  /** Уточнение курсов на дату траты (без изменения updatedAt — это не правка пользователя). */
+  | { type: 'expense/setRates'; payload: { id: string; eurRate: number; rates: RateTable; ratesDate: ISODate }[] }
   | { type: 'scan/record'; payload: ScanRecord }
   /** Изменения, пришедшие из облака (другое устройство или первый вход). */
   | { type: 'sync/apply'; payload: SyncPatch }

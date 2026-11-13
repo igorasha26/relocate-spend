@@ -6,6 +6,7 @@ import { ToastProvider } from '@/shared/ui';
 import { ErrorBoundary } from './ErrorBoundary';
 import { AppLayout } from './layout/AppLayout';
 import { useAppLifecycle } from './useAppLifecycle';
+import { useRatesBackfill } from './useRatesBackfill';
 import { useApplyDocumentSettings } from './useApplyTheme';
 
 /** Связывает настройки из store с i18n и темой документа. */
@@ -13,6 +14,7 @@ function SettingsBridge({ children }: { children: ReactNode }) {
   const { theme, language } = useSettings();
   useApplyDocumentSettings(theme, language);
   useAppLifecycle();
+  useRatesBackfill();
   return <I18nProvider language={language}>{children}</I18nProvider>;
 }
 

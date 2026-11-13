@@ -313,6 +313,7 @@ export const sr: Dictionary = {
     version: 'RelocateSpend · verzija {version}',
     ratesOn: 'Kursevi na dan {date}',
     ratesOffline: 'Ugrađeni kursevi — ažuriraće se kada budete na internetu',
+    ratesSource: 'Kursevi: {name} · svaki trošak po kursu svog dana',
     analytics: 'Anonimna statistika',
     analyticsHint: 'Pomaže da vidimo šta da poboljšamo. Bez iznosa, naziva i e-pošte',
     staging: 'test verzija',

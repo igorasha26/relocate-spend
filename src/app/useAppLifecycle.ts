@@ -35,7 +35,7 @@ export function useAppLifecycle() {
 
   useEffect(() => {
     void refreshRemoteConfig(true);
-    void refreshRates(); // курсы валют: не чаще раза в 6 часов
+    void refreshRates(); // курсы на сегодня (каждый день скачивается один раз)
     const onVisible = () => {
       if (document.visibilityState !== 'visible') return;
       void refreshRemoteConfig();

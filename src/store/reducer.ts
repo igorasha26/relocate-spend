@@ -95,6 +95,17 @@ export function reducer(state: AppState, action: Action): AppState {
       };
     }
 
+    case 'expense/setRates': {
+      const byId = new Map(action.payload.map((p) => [p.id, p]));
+      return {
+        ...state,
+        expenses: state.expenses.map((e) => {
+          const p = byId.get(e.id);
+          return p ? { ...e, eurRate: p.eurRate, rates: p.rates, ratesDate: p.ratesDate } : e;
+        }),
+      };
+    }
+
     case 'category/toggleHidden': {
       const { id } = action.payload;
       const hidden = state.settings.hiddenCategories;

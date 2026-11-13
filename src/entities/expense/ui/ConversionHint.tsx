@@ -1,7 +1,8 @@
+import { useEffect } from 'react';
 import { CURRENCIES, type Currency } from '@/shared/config/currency';
 import { useI18n } from '@/shared/i18n';
 import { convert } from '@/shared/lib/money';
-import { getRatesFor, useLatestRates, type RateTable } from '@/shared/lib/rates';
+import { ensureRatesFor, getRatesFor, useLatestRates, type RateTable } from '@/shared/lib/rates';
 import type { ISODate } from '@/shared/lib/date';
 import styles from './ConversionHint.module.css';
 
@@ -22,6 +23,10 @@ interface Props {
 export function ConversionHint({ amount, currency, date, rates, eurRate, suffix }: Props) {
   const { t, fmt } = useI18n();
   useLatestRates(); // пришли свежие курсы — подсказка пересчитается
+  // Курс на выбранную дату траты: если его ещё нет на телефоне — загрузить
+  useEffect(() => {
+    if (!rates && !eurRate) void ensureRatesFor(date);
+  }, [date, rates, eurRate]);
   if (amount <= 0) return null;
   const table = rates ?? (eurRate ? undefined : getRatesFor(date).rates);
   const others = CURRENCIES.filter((c) => c !== currency);

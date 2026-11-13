@@ -312,6 +312,7 @@ export const en: Dictionary = {
     version: 'RelocateSpend · version {version}',
     ratesOn: 'Exchange rates as of {date}',
     ratesOffline: 'Built-in exchange rates — will update when you are online',
+    ratesSource: 'Rates: {name} · each expense uses the rate of its day',
     analytics: 'Anonymous statistics',
     analyticsHint: 'Helps us see what to improve. No amounts, names or email',
     staging: 'test build',

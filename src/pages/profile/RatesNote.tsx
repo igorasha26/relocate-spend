@@ -12,7 +12,7 @@ export function RatesNote() {
       {` · 1 EUR = ${fmt.number(rates.RSD, 2)} RSD · ${fmt.number(rates.RUB, 2)} ₽ · ${fmt.number(rates.USD, 2)} $`}
       <br />
       <a href={RATES_SOURCE.url} target="_blank" rel="noreferrer">
-        Rates by {RATES_SOURCE.name}
+        {t('profile.ratesSource', { name: RATES_SOURCE.name })}
       </a>
     </p>
   );
