@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { CategoryDot, useCategoryName } from '@/entities/category';
-import { useCategories } from '@/store';
+import { useOwnCategories } from '@/store';
 import { useI18n } from '@/shared/i18n';
 import { Button, Icon, OptionList, Sheet, TextInput } from '@/shared/ui';
 import { CategoryEditorSheet } from './CategoryEditorSheet';
@@ -29,7 +29,7 @@ interface MultipleProps extends BaseProps {
 export function CategoryPickerSheet(props: SingleProps | MultipleProps) {
   const { open, onClose, allowCreate = true } = props;
   const { t } = useI18n();
-  const categories = useCategories();
+  const categories = useOwnCategories();
   const name = useCategoryName();
   const [query, setQuery] = useState('');
   const [selected, setSelected] = useState<string[]>([]);

@@ -4,6 +4,7 @@ import { analytics } from '@/shared/analytics';
 import { today, type ISODate } from '@/shared/lib/date';
 import { createId, hashString } from '@/shared/lib/id';
 import { getRatesFor, type RateTable } from '@/shared/lib/rates';
+import { groupsStore } from './groups';
 import type { Action, Settings } from './types';
 
 /**
@@ -20,12 +21,14 @@ export function createActions(dispatch: (action: Action) => void) {
   return {
     addExpense(input: ExpenseInput): Expense {
       const now = new Date().toISOString();
+      const me = input.groupId ? groupsStore.me() : null;
       const expense: Expense = {
         ...input,
         id: createId(),
         ...rateFields(input.currency, input.date),
         createdAt: now,
         updatedAt: now,
+        ...(me ? { author: me } : {}),
       };
       dispatch({ type: 'expense/add', payload: expense });
       analytics.track('expense_added', {
@@ -47,8 +50,15 @@ export function createActions(dispatch: (action: Action) => void) {
       const dateChanged = input.date !== undefined && input.date !== previous?.date;
       const legacy = previous !== undefined && !previous.rates; // старая трата без таблицы курсов
       if (currency && date && (currencyChanged || dateChanged || legacy)) Object.assign(patch, rateFields(currency, date));
-      dispatch({ type: 'expense/update', payload: { id, patch } });
+      dispatch({ type: 'expense/update', payload: { id, patch, me: groupsStore.me() } });
       analytics.track('expense_edited');
+    },
+
+    /** Перенести траты в группу или (groupId = null) обратно в личные. */
+    moveExpenses(ids: string[], groupId: string | null) {
+      if (ids.length === 0) return;
+      dispatch({ type: 'expense/move', payload: { ids, groupId, me: groupsStore.me() } });
+      analytics.track(groupId ? 'expenses_moved_to_group' : 'expenses_moved_to_personal', { count: ids.length });
     },
 
     removeExpense(id: string) {

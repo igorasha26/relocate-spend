@@ -1,5 +1,5 @@
 import type { Category } from '@/entities/category';
-import type { Expense, ExpenseItem } from '@/entities/expense';
+import type { Expense, ExpenseItem, ExpensePerson } from '@/entities/expense';
 import type { Currency } from '@/shared/config/currency';
 import type { Language } from '@/shared/i18n';
 import type { ISODate } from '@/shared/lib/date';
@@ -47,7 +47,11 @@ export type Action =
   | { type: 'load/success'; payload: PersistedState }
   | { type: 'load/failure' }
   | { type: 'expense/add'; payload: Expense }
-  | { type: 'expense/update'; payload: { id: string; patch: Partial<Omit<Expense, 'id' | 'createdAt'>> } }
+  | { type: 'expense/update'; payload: { id: string; patch: Partial<Omit<Expense, 'id' | 'createdAt'>>; me?: ExpensePerson | null } }
+  /** Перенос трат в группу (groupId) или обратно в личные (null). */
+  | { type: 'expense/move'; payload: { ids: string[]; groupId: string | null; me: ExpensePerson | null } }
+  /** Убрать с устройства траты групп, в которых я больше не состою. */
+  | { type: 'expense/dropGroups'; payload: { keepGroupIds: string[] } }
   | { type: 'expense/remove'; payload: { id: string } }
   | { type: 'item/add'; payload: { expenseId: string; item: ExpenseItem } }
   | { type: 'item/update'; payload: { expenseId: string; item: ExpenseItem } }

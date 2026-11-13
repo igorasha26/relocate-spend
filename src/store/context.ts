@@ -1,4 +1,5 @@
-import { createContext, useContext } from 'react';
+import { createContext, useContext, useMemo } from 'react';
+import { DEFAULT_CUSTOM_FIELDS, type Category } from '@/entities/category';
 import { today } from '@/shared/lib/date';
 import { hashString } from '@/shared/lib/id';
 import type { Actions } from './actions';
@@ -26,12 +27,39 @@ export function useSettings() {
   return useAppState().settings;
 }
 
-export function useCategories() {
+/**
+ * Категории для показа: свои + чужие из трат групп (только для отображения, virtual).
+ * Для выбора и редактирования — useOwnCategories.
+ */
+export function useCategories(): Category[] {
+  const { categories, expenses } = useAppState();
+  return useMemo(() => {
+    const known = new Set(categories.map((c) => c.id));
+    const extra: Category[] = [];
+    for (const e of expenses) {
+      if (!e.categorySnapshot || known.has(e.categoryId)) continue;
+      known.add(e.categoryId);
+      extra.push({
+        id: e.categoryId,
+        name: e.categorySnapshot.name,
+        color: e.categorySnapshot.color as Category['color'],
+        icon: e.categorySnapshot.icon as Category['icon'],
+        fields: DEFAULT_CUSTOM_FIELDS,
+        builtIn: false,
+        virtual: true,
+      });
+    }
+    return extra.length ? [...categories, ...extra] : categories;
+  }, [categories, expenses]);
+}
+
+/** Только свои категории — для выбора в форме и страницы «Категории». */
+export function useOwnCategories(): Category[] {
   return useAppState().categories;
 }
 
 export function useCategory(id: string | undefined) {
-  return useAppState().categories.find((c) => c.id === id);
+  return useCategories().find((c) => c.id === id);
 }
 
 export function useExpense(id: string | undefined) {

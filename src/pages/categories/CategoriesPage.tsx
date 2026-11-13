@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CategoryIconTile, useCategoryName, type Category } from '@/entities/category';
 import { CategoryActionsSheet, CategoryEditorSheet } from '@/features/category';
-import { useCategories } from '@/store';
+import { useOwnCategories } from '@/store';
 import { useI18n } from '@/shared/i18n';
 import { Button, ListGroup, ListRow, Page, PageHeader, SectionLabel } from '@/shared/ui';
 import styles from './CategoriesPage.module.css';
@@ -11,7 +11,7 @@ import styles from './CategoriesPage.module.css';
 export function CategoriesPage() {
   const { t } = useI18n();
   const navigate = useNavigate();
-  const categories = useCategories();
+  const categories = useOwnCategories();
   const name = useCategoryName();
   const [selected, setSelected] = useState<Category | null>(null);
   const [creating, setCreating] = useState(false);

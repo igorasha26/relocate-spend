@@ -40,7 +40,32 @@ export interface Expense {
   source: ExpenseSource;
   createdAt: string;
   updatedAt: string;
+  /** Группа трат (совместный бюджет). Нет — личная трата. */
+  groupId?: string;
+  /** Кто записал трату (для трат группы). */
+  author?: ExpensePerson;
+  /** Кто последним изменил трату, если это не автор. */
+  editor?: ExpensePerson;
+  /**
+   * Своя категория автора — копия названия, цвета и иконки, чтобы другие участники группы
+   * видели категорию, которой у них нет.
+   */
+  categorySnapshot?: CategorySnapshot;
+}
+
+export interface ExpensePerson {
+  id: string;
+  name: string;
+}
+
+export interface CategorySnapshot {
+  name: string;
+  color: string;
+  icon: string;
 }
 
 /** То, что вводит пользователь; служебные поля проставляет store. */
-export type ExpenseInput = Omit<Expense, 'id' | 'eurRate' | 'rates' | 'ratesDate' | 'createdAt' | 'updatedAt'>;
+export type ExpenseInput = Omit<
+  Expense,
+  'id' | 'eurRate' | 'rates' | 'ratesDate' | 'createdAt' | 'updatedAt' | 'author' | 'editor' | 'categorySnapshot'
+>;

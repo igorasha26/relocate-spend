@@ -91,6 +91,10 @@
 SQL Editor → вставить [`supabase/migrations/002_feedback_rate_limit.sql`](../supabase/migrations/002_feedback_rate_limit.sql) → Run. В **обоих** проектах.
 Не больше 5 отзывов в час с одного устройства и не больше 50 за 10 минут на всё приложение.
 
+### 1.8. Группы трат (совместный бюджет) — пока только DEV
+SQL Editor проекта **relocate-spend-dev** → вставить [`supabase/migrations/003_groups.sql`](../supabase/migrations/003_groups.sql) → Run.
+В **prod** этот скрипт запускаем, только когда группы будут готовы к выпуску. Иначе в основной версии появятся таблицы, которыми ещё никто не пользуется (это не страшно, но лучше по порядку).
+
 ---
 
 ## 2. PostHog (аналитика)

@@ -3,6 +3,7 @@ import { createActions } from './actions';
 import { ActionsContext, StateContext, SyncContext } from './context';
 import { initialState, reducer } from './reducer';
 import { localStorageRepository, type StateRepository } from './storage';
+import { groupsStore } from './groups';
 import { useCloudSync } from './sync/useCloudSync';
 import type { PersistedState } from './types';
 
@@ -41,6 +42,11 @@ export function StoreProvider({ children, repository = localStorageRepository }:
 
   const actions = useMemo(() => ({ ...createActions(dispatch), reload: load }), [load]);
   const sync = useCloudSync(state, dispatch);
+
+  // Только в разработке: доступ к store из консоли и автотестов (в production-сборку не попадает)
+  useEffect(() => {
+    if (import.meta.env.DEV) (window as unknown as Record<string, unknown>).__rs = { actions, sync, groupsStore };
+  }, [actions, sync]);
 
   return (
     <StateContext.Provider value={state}>

@@ -1,4 +1,4 @@
-import { DEFAULT_CATEGORIES, FALLBACK_CATEGORY_ID } from '@/entities/category';
+import { DEFAULT_CATEGORIES, DEFAULT_CUSTOM_FIELDS, FALLBACK_CATEGORY_ID, type Category } from '@/entities/category';
 import type { Expense } from '@/entities/expense';
 import { addMonths, today } from '@/shared/lib/date';
 import type { Action, AppState, PersistedState } from './types';
@@ -29,6 +29,18 @@ function mapExpense(state: AppState, id: string, fn: (e: Expense) => Expense): A
   return { ...state, expenses: state.expenses.map((e) => (e.id === id ? touch(fn(e)) : e)) };
 }
 
+/**
+ * Трата группы со своей (не стандартной) категорией несёт копию категории —
+ * чтобы участники, у которых такой категории нет, видели название, цвет и иконку.
+ */
+function withGroupFields(state: Pick<AppState, 'categories'>, e: Expense): Expense {
+  if (!e.groupId) return e;
+  const own = state.categories.find((c) => c.id === e.categoryId);
+  if (!own) return e; // чужая категория — копия уже есть
+  if (own.builtIn) return e.categorySnapshot ? { ...e, categorySnapshot: undefined } : e;
+  return { ...e, categorySnapshot: { name: own.name ?? '', color: own.color, icon: own.icon } };
+}
+
 /** Замена/добавление по id и удаление; новые расходы — в начало (как при добавлении вручную). */
 function mergeById<T extends { id: string }>(list: T[], upsert: T[], remove: string[], prepend = false): T[] {
   if (upsert.length === 0 && remove.length === 0) return list;
@@ -51,9 +63,50 @@ export function reducer(state: AppState, action: Action): AppState {
       return { ...state, status: 'error' };
 
     case 'expense/add':
-      return { ...state, expenses: [action.payload, ...state.expenses] };
-    case 'expense/update':
-      return mapExpense(state, action.payload.id, (e) => ({ ...e, ...action.payload.patch }));
+      return { ...state, expenses: [withGroupFields(state, action.payload), ...state.expenses] };
+    case 'expense/update': {
+      const { patch, me } = action.payload;
+      return mapExpense(state, action.payload.id, (e) => {
+        const next = withGroupFields(state, { ...e, ...patch });
+        // В группе видно, кто последним поправил трату (если не автор)
+        if (next.groupId && me) next.editor = me.id === next.author?.id ? undefined : me;
+        return next;
+      });
+    }
+    case 'expense/move': {
+      const { ids, groupId, me } = action.payload;
+      const moving = new Set(ids);
+      const now = new Date().toISOString();
+      let categories = state.categories;
+      const expenses = state.expenses.map((e) => {
+        if (!moving.has(e.id)) return e;
+        if (groupId) {
+          return withGroupFields(state, { ...e, groupId, author: e.author ?? me ?? undefined, editor: undefined, updatedAt: now });
+        }
+        // Обратно в личные: чужая категория из группы становится своей, чтобы трата не потеряла её
+        const { groupId: _g, author: _a, editor: _e, categorySnapshot, ...personal } = e;
+        if (categorySnapshot && !categories.some((c) => c.id === e.categoryId)) {
+          categories = [
+            ...categories,
+            {
+              id: e.categoryId,
+              name: categorySnapshot.name,
+              color: categorySnapshot.color as Category['color'],
+              icon: categorySnapshot.icon as Category['icon'],
+              fields: DEFAULT_CUSTOM_FIELDS,
+              builtIn: false,
+            },
+          ];
+        }
+        return { ...personal, updatedAt: now };
+      });
+      return { ...state, expenses, categories };
+    }
+    case 'expense/dropGroups': {
+      const keep = new Set(action.payload.keepGroupIds);
+      const expenses = state.expenses.filter((e) => !e.groupId || keep.has(e.groupId));
+      return expenses.length === state.expenses.length ? state : { ...state, expenses };
+    }
     case 'expense/remove':
       return { ...state, expenses: state.expenses.filter((e) => e.id !== action.payload.id) };
 

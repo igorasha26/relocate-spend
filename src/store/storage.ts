@@ -50,6 +50,7 @@ export function sanitizeExpense(raw: unknown, categoryIds: Set<string>): Expense
   if (amount === undefined || amount <= 0 || !isISODate(date) || !isCurrency(raw.currency)) return null;
   const now = new Date().toISOString();
   const categoryId = str(raw.categoryId);
+  const snapshot = raw.groupId ? sanitizeSnapshot(raw.categorySnapshot) : undefined;
   return {
     id: str(raw.id) ?? createId(),
     amount,
@@ -57,7 +58,8 @@ export function sanitizeExpense(raw: unknown, categoryIds: Set<string>): Expense
     eurRate: num(raw.eurRate) ?? ratesService.getEurRate(raw.currency, date),
     rates: sanitizeTable(raw.rates) ?? undefined,
     ratesDate: isISODate(raw.ratesDate) ? raw.ratesDate : undefined,
-    categoryId: categoryId && categoryIds.has(categoryId) ? categoryId : FALLBACK_CATEGORY_ID,
+    categoryId:
+      categoryId && (categoryIds.has(categoryId) || (raw.groupId && snapshot)) ? categoryId : FALLBACK_CATEGORY_ID,
     date,
     time: typeof raw.time === 'string' && /^\d{2}:\d{2}$/.test(raw.time) ? raw.time : undefined,
     merchant: str(raw.merchant),
@@ -67,7 +69,26 @@ export function sanitizeExpense(raw: unknown, categoryIds: Set<string>): Expense
     source: raw.source === 'qr' ? 'qr' : 'manual',
     createdAt: str(raw.createdAt) ?? now,
     updatedAt: str(raw.updatedAt) ?? now,
+    groupId: str(raw.groupId),
+    author: sanitizePerson(raw.author),
+    editor: sanitizePerson(raw.editor),
+    categorySnapshot: snapshot,
   };
+}
+
+function sanitizePerson(raw: unknown) {
+  if (!isObject(raw)) return undefined;
+  const id = str(raw.id);
+  const name = str(raw.name);
+  return id && name ? { id, name: name.slice(0, 40) } : undefined;
+}
+
+function sanitizeSnapshot(raw: unknown) {
+  if (!isObject(raw)) return undefined;
+  const name = str(raw.name);
+  return name && isCategoryColor(raw.color) && isCategoryIcon(raw.icon)
+    ? { name: name.slice(0, 40), color: raw.color, icon: raw.icon }
+    : undefined;
 }
 
 export function sanitizeCategory(raw: unknown): Category | null {

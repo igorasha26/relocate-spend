@@ -4,7 +4,8 @@ import { analytics } from '@/shared/analytics';
 import { HAS_BACKEND } from '@/shared/config/env';
 import { createDefaultState, reducer } from '../reducer';
 import type { Action, AppState, PersistedState } from '../types';
-import { diffForPush, docKey, isEmptyPatch, remoteToPatch, type RemoteRow } from './docs';
+import { groupsStore } from '../groups';
+import { diffForPush, docKey, isEmptyPatch, PERSONAL, remoteToPatch, type RemoteRow, type Space } from './docs';
 
 export type SyncStatus = 'off' | 'syncing' | 'synced' | 'offline' | 'error';
 
@@ -18,14 +19,23 @@ export interface SyncApi {
   signOut: () => Promise<void>;
   /** Удалить аккаунт и все данные в облаке. */
   deleteAccount: () => Promise<void>;
+  /** Обновить список групп и синхронизировать (после создания группы, вступления). */
+  refreshGroups: () => Promise<void>;
+  /** Выйти из группы; true — группа удалена (был последним). */
+  leaveGroup: (groupId: string, takeExpenses: boolean) => Promise<boolean>;
 }
 
-interface SyncMeta {
-  userId: string;
+interface SpaceMeta {
   /** updated_at самой свежей полученной записи. */
   cursor: string | null;
   /** Отпечатки записей в том виде, в каком они лежат в облаке. */
   hashes: Record<string, string>;
+}
+
+interface SyncMeta extends SpaceMeta {
+  userId: string;
+  /** То же для каждой группы трат. */
+  groups: Record<string, SpaceMeta>;
 }
 
 const META_KEY = 'relocate-spend:sync';
@@ -33,16 +43,19 @@ const PAGE = 1000;
 const PUSH_CHUNK = 200;
 const DEBOUNCE_MS = 1500;
 const POLL_MS = 2 * 60 * 1000;
+/** С группами опрашиваем чаще: траты второго человека должны появляться быстро. */
+const POLL_GROUPS_MS = 30 * 1000;
+const GROUPS_REFRESH_MS = 60 * 1000;
 
 function readMeta(userId: string): SyncMeta {
   try {
     const m = JSON.parse(localStorage.getItem(META_KEY) ?? 'null') as SyncMeta | null;
-    if (m && m.userId === userId && typeof m.hashes === 'object') return m;
+    if (m && m.userId === userId && typeof m.hashes === 'object') return { ...m, groups: m.groups ?? {} };
   } catch {
     /* нет меты — первая синхронизация */
   }
   // Новый аккаунт на этом устройстве: всё локальное будет добавлено в аккаунт
-  return { userId, cursor: null, hashes: {} };
+  return { userId, cursor: null, hashes: {}, groups: {} };
 }
 
 const writeMeta = (meta: SyncMeta | null) => {
@@ -75,6 +88,7 @@ export function useCloudSync(state: AppState, dispatch: Dispatch<Action>): SyncA
   const stateRef = useRef(state);
   stateRef.current = state;
   const running = useRef<Promise<void> | null>(null);
+  const lastGroupsRefresh = useRef(0);
   const again = useRef(false);
 
   const runOnce = useCallback(async (uid: string) => {
@@ -86,47 +100,83 @@ export function useCloudSync(state: AppState, dispatch: Dispatch<Action>): SyncA
     setStatus('syncing');
     const meta = readMeta(uid);
     try {
-      // 1. Забираем изменения из облака (с запасом 5 с — на случай одновременных записей)
-      const rows: RemoteRow[] = [];
-      const since = meta.cursor ? new Date(Date.parse(meta.cursor) - 5000).toISOString() : null;
-      for (let offset = 0; ; offset += PAGE) {
-        const filter = since ? `&updated_at=gte.${encodeURIComponent(since)}` : '';
-        const page = await restRequest<RemoteRow[]>(
-          `records?select=kind,id,data,deleted,updated_at${filter}&order=updated_at.asc,kind.asc,id.asc&limit=${PAGE}&offset=${offset}`,
-        );
-        rows.push(...page);
-        if (page.length < PAGE) break;
-      }
-
       let current = persisted(stateRef.current);
-      if (rows.length) {
-        const patch = remoteToPatch(rows, current, meta.hashes);
-        meta.cursor = rows.reduce((max, r) => (r.updated_at > max ? r.updated_at : max), meta.cursor ?? '');
-        if (!isEmptyPatch(patch)) {
-          const action: Action = { type: 'sync/apply', payload: patch };
-          // reducer чистый — считаем итог сразу, не дожидаясь перерисовки
-          current = persisted(reducer({ ...current, status: 'ready' }, action));
-          dispatch(action);
-        }
-        writeMeta(meta);
-      }
 
-      // 2. Отправляем то, чего в облаке ещё нет
-      const { changed, removed } = diffForPush(current, meta.hashes);
-      const upserts = [
-        ...changed.map((d) => ({ user_id: uid, kind: d.kind, id: d.id, data: d.data, deleted: false, _key: docKey(d.kind, d.id), _hash: d.hash })),
-        ...removed.map((d) => ({ user_id: uid, kind: d.kind, id: d.id, data: null, deleted: true, _key: d.key, _hash: null })),
-      ];
-      for (let i = 0; i < upserts.length; i += PUSH_CHUNK) {
-        const chunk = upserts.slice(i, i + PUSH_CHUNK);
-        await restRequest('records?on_conflict=user_id,kind,id', {
-          method: 'POST',
-          headers: { Prefer: 'resolution=merge-duplicates,return=minimal' },
-          body: chunk.map(({ _key: _k, _hash: _h, ...row }) => row),
-        });
-        for (const row of chunk) {
-          if (row._hash === null) delete meta.hashes[row._key];
-          else meta.hashes[row._key] = row._hash;
+      /** Один цикл для пространства: забрать изменения → применить → отправить своё. */
+      const syncSpace = async (space: Space, spaceMeta: SpaceMeta) => {
+        const table = space.type === 'group' ? 'group_records' : 'records';
+        const scope = space.type === 'group' ? `&group_id=eq.${space.id}` : '';
+
+        // 1. Забираем изменения из облака (с запасом 5 с — на случай одновременных записей)
+        const rows: RemoteRow[] = [];
+        const since = spaceMeta.cursor ? new Date(Date.parse(spaceMeta.cursor) - 5000).toISOString() : null;
+        for (let offset = 0; ; offset += PAGE) {
+          const filter = since ? `&updated_at=gte.${encodeURIComponent(since)}` : '';
+          const page = await restRequest<RemoteRow[]>(
+            `${table}?select=kind,id,data,deleted,updated_at${scope}${filter}&order=updated_at.asc,kind.asc,id.asc&limit=${PAGE}&offset=${offset}`,
+          );
+          rows.push(...page);
+          if (page.length < PAGE) break;
+        }
+        if (rows.length) {
+          const patch = remoteToPatch(rows, current, spaceMeta.hashes, space);
+          spaceMeta.cursor = rows.reduce((max, r) => (r.updated_at > max ? r.updated_at : max), spaceMeta.cursor ?? '');
+          if (!isEmptyPatch(patch)) {
+            const action: Action = { type: 'sync/apply', payload: patch };
+            // reducer чистый — считаем итог сразу, не дожидаясь перерисовки
+            current = persisted(reducer({ ...current, status: 'ready' }, action));
+            dispatch(action);
+          }
+          writeMeta(meta);
+        }
+
+        // 2. Отправляем то, чего в облаке ещё нет
+        const { changed, removed } = diffForPush(current, spaceMeta.hashes, space);
+        const owner = space.type === 'group' ? { group_id: space.id } : { user_id: uid };
+        const upserts = [
+          ...changed.map((d) => ({ ...owner, kind: d.kind, id: d.id, data: d.data, deleted: false, _key: docKey(d.kind, d.id), _hash: d.hash })),
+          ...removed.map((d) => ({ ...owner, kind: d.kind, id: d.id, data: null, deleted: true, _key: d.key, _hash: null })),
+        ];
+        const conflict = space.type === 'group' ? 'group_id,kind,id' : 'user_id,kind,id';
+        for (let i = 0; i < upserts.length; i += PUSH_CHUNK) {
+          const chunk = upserts.slice(i, i + PUSH_CHUNK);
+          await restRequest(`${table}?on_conflict=${conflict}`, {
+            method: 'POST',
+            headers: { Prefer: 'resolution=merge-duplicates,return=minimal' },
+            body: chunk.map(({ _key: _k, _hash: _h, ...row }) => row),
+          });
+          for (const row of chunk) {
+            if (row._hash === null) delete spaceMeta.hashes[row._key];
+            else spaceMeta.hashes[row._key] = row._hash;
+          }
+          writeMeta(meta);
+        }
+      };
+
+      // Личные данные
+      await syncSpace(PERSONAL, meta);
+
+      // Группы трат: список групп обновляем не чаще раза в минуту (и сразу после действий с группами)
+      if (Date.now() - lastGroupsRefresh.current > GROUPS_REFRESH_MS) {
+        lastGroupsRefresh.current = Date.now();
+        await groupsStore.refresh().catch(() => {});
+      }
+      const { groups, fresh, userId: groupsUser } = groupsStore.get();
+      if (groupsUser === uid) {
+        const ids = groups.map((g) => g.id);
+        if (fresh) {
+          // Вышли из группы / группа удалена — её траты убираем с устройства
+          const action: Action = { type: 'expense/dropGroups', payload: { keepGroupIds: ids } };
+          const next = persisted(reducer({ ...current, status: 'ready' }, action));
+          if (next.expenses.length !== current.expenses.length) {
+            current = next;
+            dispatch(action);
+          }
+          for (const gid of Object.keys(meta.groups)) if (!ids.includes(gid)) delete meta.groups[gid];
+        }
+        for (const gid of ids) {
+          meta.groups[gid] ??= { cursor: null, hashes: {} };
+          await syncSpace({ type: 'group', id: gid }, meta.groups[gid]);
         }
         writeMeta(meta);
       }
@@ -187,7 +237,14 @@ export function useCloudSync(state: AppState, dispatch: Dispatch<Action>): SyncA
     document.addEventListener('visibilitychange', onVisible);
     window.addEventListener('online', onOnline);
     window.addEventListener('offline', onOffline);
-    const poll = setInterval(() => document.visibilityState === 'visible' && void sync(), POLL_MS);
+    let lastPoll = Date.now();
+    const poll = setInterval(() => {
+      if (document.visibilityState !== 'visible') return;
+      const interval = groupsStore.groups().length ? POLL_GROUPS_MS : POLL_MS;
+      if (Date.now() - lastPoll < interval) return;
+      lastPoll = Date.now();
+      void sync();
+    }, POLL_GROUPS_MS);
     return () => {
       document.removeEventListener('visibilitychange', onVisible);
       window.removeEventListener('online', onOnline);
@@ -198,6 +255,7 @@ export function useCloudSync(state: AppState, dispatch: Dispatch<Action>): SyncA
 
   const clearDevice = useCallback(() => {
     writeMeta(null);
+    groupsStore.clear();
     analytics.reset();
     // Настройки устройства (язык, тема, валюта) оставляем — меняется только содержимое
     const fresh = createDefaultState();
@@ -206,8 +264,16 @@ export function useCloudSync(state: AppState, dispatch: Dispatch<Action>): SyncA
 
   const hasPending = useCallback(() => {
     if (!userId) return false;
-    const { changed, removed } = diffForPush(persisted(stateRef.current), readMeta(userId).hashes);
-    return changed.length + removed.length > 0;
+    const state = persisted(stateRef.current);
+    const meta = readMeta(userId);
+    const spaces: [Space, Record<string, string>][] = [
+      [PERSONAL, meta.hashes],
+      ...groupsStore.groups().map((g): [Space, Record<string, string>] => [{ type: 'group', id: g.id }, meta.groups[g.id]?.hashes ?? {}]),
+    ];
+    return spaces.some(([space, hashes]) => {
+      const { changed, removed } = diffForPush(state, hashes, space);
+      return changed.length + removed.length > 0;
+    });
   }, [userId]);
 
   const signOut = useCallback(async () => {
@@ -224,8 +290,37 @@ export function useCloudSync(state: AppState, dispatch: Dispatch<Action>): SyncA
     clearDevice();
   }, [clearDevice]);
 
+  /** После действий с группами (создал, вступил) — сразу обновить список и синхронизировать. */
+  const refreshGroups = useCallback(async () => {
+    lastGroupsRefresh.current = 0;
+    await sync();
+  }, [sync]);
+
+  /**
+   * Выйти из группы. takeExpenses — сначала забрать траты группы в личные
+   * (предлагается последнему участнику: после его выхода группа удаляется вместе с тратами).
+   */
+  const leaveGroup = useCallback(
+    async (groupId: string, takeExpenses: boolean) => {
+      if (takeExpenses) {
+        const ids = stateRef.current.expenses.filter((e) => e.groupId === groupId).map((e) => e.id);
+        dispatch({ type: 'expense/move', payload: { ids, groupId: null, me: groupsStore.me() } });
+        // дождаться, пока перенос попадёт в состояние, которое читает синхронизация
+        for (let i = 0; i < 50 && stateRef.current.expenses.some((e) => e.groupId === groupId); i++) {
+          await new Promise((resolve) => setTimeout(resolve, 20));
+        }
+        await sync();
+      }
+      const deleted = await groupsStore.leaveGroup(groupId);
+      analytics.track('group_left', { deleted, took_expenses: takeExpenses });
+      await refreshGroups();
+      return deleted;
+    },
+    [dispatch, sync, refreshGroups],
+  );
+
   return useMemo(
-    () => ({ status, lastSyncedAt, hasPending, syncNow: sync, signOut, deleteAccount }),
-    [status, lastSyncedAt, hasPending, sync, signOut, deleteAccount],
+    () => ({ status, lastSyncedAt, hasPending, syncNow: sync, signOut, deleteAccount, refreshGroups, leaveGroup }),
+    [status, lastSyncedAt, hasPending, sync, signOut, deleteAccount, refreshGroups, leaveGroup],
   );
 }
