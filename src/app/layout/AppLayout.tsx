@@ -26,12 +26,15 @@ const LoginPage = lazyPage(() => import('@/pages/auth').then((m) => m.LoginPage)
 const SignupPage = lazyPage(() => import('@/pages/auth').then((m) => m.SignupPage));
 const ResetPasswordPage = lazyPage(() => import('@/pages/auth').then((m) => m.ResetPasswordPage));
 const PrivacyPage = lazyPage(() => import('@/pages/privacy').then((m) => m.PrivacyPage));
+const CreateGroupPage = lazyPage(() => import('@/pages/groups').then((m) => m.CreateGroupPage));
+const GroupPage = lazyPage(() => import('@/pages/groups').then((m) => m.GroupPage));
 
 /** Экраны без таб-бара (полноэкранные сценарии). */
-const FULLSCREEN: string[] = [routes.scan, routes.login, routes.signup, routes.resetPassword, routes.privacy];
+const FULLSCREEN: string[] = [routes.scan, routes.login, routes.signup, routes.resetPassword, routes.privacy, routes.groupNew];
 
 /** Имя экрана для аналитики: id расходов не отправляем. */
-const screenName = (pathname: string) => pathname.replace(/\/expense\/[^/]+/, '/expense/:id');
+const screenName = (pathname: string) =>
+  pathname.replace(/\/expense\/[^/]+/, '/expense/:id').replace(/\/groups\/(?!new)[^/]+/, '/groups/:id');
 
 export function AppLayout() {
   const { pathname } = useLocation();
@@ -71,6 +74,8 @@ export function AppLayout() {
                 <Route path={routes.signup} element={<SignupPage />} />
                 <Route path={routes.resetPassword} element={<ResetPasswordPage />} />
                 <Route path={routes.privacy} element={<PrivacyPage />} />
+                <Route path={routes.groupNew} element={<CreateGroupPage />} />
+                <Route path="/groups/:id" element={<GroupPage />} />
                 <Route path="*" element={<Navigate to={routes.home} replace />} />
               </Routes>
             </div>

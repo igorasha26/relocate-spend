@@ -5,7 +5,8 @@ import { ConversionHint, isAmountFromItems, ItemsCard } from '@/entities/expense
 import { ratesService } from '@/shared/lib/money';
 import { DeleteExpenseDialog } from '@/features/expense-delete';
 import { ItemsEditSheet } from '@/features/expense-form';
-import { useActions, useAppState, useCategory, useExpense } from '@/store';
+import { MemberPill } from '@/features/groups';
+import { useActions, useAppState, useCategory, useExpense, useGroups } from '@/store';
 import { routes } from '@/shared/config/routes';
 import { useI18n } from '@/shared/i18n';
 import { Button, Icon, KeyValueRow, Page, PageHeader } from '@/shared/ui';
@@ -21,6 +22,7 @@ export function ExpenseDetailsPage() {
   const expense = useExpense(id);
   const category = useCategory(expense?.categoryId);
   const categoryName = useCategoryName();
+  const { groups } = useGroups();
   const { updateExpense } = useActions();
   const [editingItems, setEditingItems] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -74,6 +76,27 @@ export function ExpenseDetailsPage() {
         >
           {expense.items.length ? t('details.editItems') : t('details.addItem')}
         </Button>
+      )}
+
+      {/* Трата группы: в какой группе, кто записал и кто последним изменил */}
+      {expense.groupId && (
+        <div className={styles.groupMeta}>
+          <span className={styles.groupName}>
+            <Icon name="users" size={16} />
+            {t('groups.inGroup', { group: groups.find((g) => g.id === expense.groupId)?.name ?? '…' })}
+          </span>
+          {expense.author && (
+            <span className={styles.groupPeople}>
+              {t('groups.addedBy')} <MemberPill id={expense.author.id} name={expense.author.name} small />
+              {expense.editor && (
+                <>
+                  {' · '}
+                  {t('groups.editedBy')} <MemberPill id={expense.editor.id} name={expense.editor.name} small />
+                </>
+              )}
+            </span>
+          )}
+        </div>
       )}
 
       {/* Курс, по которому трата пересчитывается во все валюты (зафиксирован при записи) */}

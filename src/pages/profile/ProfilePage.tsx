@@ -13,6 +13,7 @@ import { Onboarding } from '@/features/onboarding';
 import { usePeriodLabels } from '@/features/period';
 import { Icon, InfoCard, ListGroup, ListRow, Page, PageHeader, SectionLabel, Switch } from '@/shared/ui';
 import { AccountSection } from './AccountSection';
+import { GroupsSection } from './GroupsSection';
 import { RatesNote } from './RatesNote';
 import { PreferenceSheets, type PreferenceSheet } from './PreferenceSheets';
 import styles from './ProfilePage.module.css';
@@ -47,7 +48,9 @@ export function ProfilePage() {
     <Page>
       <PageHeader title={t('profile.title')} />
 
-      <AccountSection />
+      <AccountSection>
+        <GroupsSection />
+      </AccountSection>
 
       {/* Тариф и лимит сканов — после бета-теста (флаг pro) */}
       {pro && (

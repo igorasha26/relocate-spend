@@ -17,6 +17,9 @@ export const routes = {
   signup: '/auth/signup',
   resetPassword: '/auth/reset',
   privacy: '/privacy',
+  /** Группы трат. */
+  groupNew: '/groups/new',
+  group: (id: string) => `/groups/${id}`,
   /** Главная с фильтром по категории. */
   homeWithCategory: (categoryId: string) => `/?category=${encodeURIComponent(categoryId)}`,
 } as const;

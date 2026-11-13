@@ -103,6 +103,10 @@ export function remoteToPatch(
     if (mine && known !== undefined && hashData(mine.data) !== known) continue; // локальная правка ещё не отправлена
 
     if (row.deleted) {
+      // Запись есть локально, а облако о ней «не знает» (отпечатка нет): её заново создали или вернули
+      // на этом устройстве после удаления в облаке (например, забрали трату из группы в личные).
+      // Старое удаление не должно её стереть — она уйдёт в облако при отправке.
+      if (mine && known === undefined) continue;
       delete hashes[key];
       if (!mine) continue;
       if (row.kind === 'expense') patch.expenses.remove.push(row.id);

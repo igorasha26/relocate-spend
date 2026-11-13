@@ -62,3 +62,30 @@
   gap: 8px;
   margin-top: 6px;
 }
+
+/* ---------- Трата группы ---------- */
+.groupMeta {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px 14px;
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  font-size: 14px;
+  color: var(--text-2);
+}
+
+.groupName {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.groupPeople {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}

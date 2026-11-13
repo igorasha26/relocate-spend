@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSession } from '@/shared/api';
 import { HAS_BACKEND } from '@/shared/config/env';
@@ -13,7 +13,7 @@ import styles from './ProfilePage.module.css';
  * Карточка аккаунта в профиле:
  * гость — предложение создать аккаунт; вошёл — почта и статус синхронизации, выход и удаление.
  */
-export function AccountSection() {
+export function AccountSection({ children }: { children?: ReactNode }) {
   const { t, fmt, language } = useI18n();
   const navigate = useNavigate();
   const toast = useToast();
@@ -103,6 +103,8 @@ export function AccountSection() {
           )}
         </p>
       </section>
+
+      {children}
 
       <section>
         <SectionLabel>{t('account.section')}</SectionLabel>
