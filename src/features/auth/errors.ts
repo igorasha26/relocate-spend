@@ -5,6 +5,7 @@ import type { TranslationKey } from '@/shared/i18n';
 export function authErrorKey(error: unknown): TranslationKey {
   if (!(error instanceof ApiError)) return 'auth.errors.unknown';
   if (error.code === 'not_configured') return 'auth.errors.unavailable';
+  if (/captcha/i.test(error.code) || /captcha/i.test(error.message)) return 'auth.errors.captcha';
   if (error.isNetwork) return 'auth.errors.network';
   const code = error.code;
   const msg = error.message.toLowerCase();

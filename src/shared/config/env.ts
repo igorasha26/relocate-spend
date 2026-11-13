@@ -28,6 +28,8 @@ export const ENV = {
     key: clean(import.meta.env.VITE_POSTHOG_KEY),
     host: (clean(import.meta.env.VITE_POSTHOG_HOST) ?? 'https://eu.i.posthog.com').replace(/\/+$/, ''),
   },
+  /** Cloudflare Turnstile (капча на вход/регистрацию). Без ключа капча не показывается. */
+  turnstileSiteKey: clean(import.meta.env.VITE_TURNSTILE_SITE_KEY),
   /** Функции, включённые для этой сборки независимо от настроек в базе. */
   forcedFeatures: new Set((import.meta.env.VITE_FEATURES ?? '').split(',').map((f) => f.trim()).filter(Boolean)),
 } as const;

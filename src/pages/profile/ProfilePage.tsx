@@ -13,6 +13,7 @@ import { Onboarding } from '@/features/onboarding';
 import { usePeriodLabels } from '@/features/period';
 import { Icon, InfoCard, ListGroup, ListRow, Page, PageHeader, SectionLabel, Switch } from '@/shared/ui';
 import { AccountSection } from './AccountSection';
+import { RatesNote } from './RatesNote';
 import { PreferenceSheets, type PreferenceSheet } from './PreferenceSheets';
 import styles from './ProfilePage.module.css';
 
@@ -96,6 +97,7 @@ export function ProfilePage() {
             onClick={() => navigate(routes.categories)}
           />
         </ListGroup>
+        <RatesNote />
       </section>
 
       <ListGroup>

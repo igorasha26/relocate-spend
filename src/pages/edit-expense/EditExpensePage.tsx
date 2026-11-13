@@ -21,7 +21,7 @@ function EditForm({ expense }: { expense: Expense }) {
         form={form}
         submitLabel={t('form.saveChanges')}
         onSubmit={(input) => {
-          updateExpense(expense.id, input);
+          updateExpense(expense.id, input, expense);
           toast(t('form.updated'));
           navigate(routes.expense(expense.id), { replace: true });
         }}

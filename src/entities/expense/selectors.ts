@@ -6,7 +6,7 @@ import type { Expense, ExpenseSource } from './model';
 /** Сумма расхода в валюте отображения. */
 export function amountIn(expense: Expense, currency: Currency): number {
   if (expense.currency === currency) return expense.amount;
-  return convert(expense.amount, expense.eurRate, currency);
+  return convert(expense.amount, expense.currency, currency, expense.rates, expense.eurRate);
 }
 
 export function sumIn(expenses: readonly Expense[], currency: Currency): number {

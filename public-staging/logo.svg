@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <!-- Тестовая сборка: тот же знак, но янтарная гамма и лента TEST -->
+  <defs>
+    <linearGradient id="bgd" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2B2418"/><stop offset="1" stop-color="#110D07"/></linearGradient>
+    <radialGradient id="halo" cx="0.5" cy="0.48" r="0.5"><stop offset="0" stop-color="#FFB547" stop-opacity="0.2"/><stop offset="1" stop-color="#FFB547" stop-opacity="0"/></radialGradient>
+    <linearGradient id="arrow" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#FFD27A"/><stop offset="1" stop-color="#FFF0C7"/></linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="112" fill="url(#bgd)"/>
+  <rect width="512" height="512" rx="112" fill="url(#halo)"/>
+  <g transform="translate(256 256) scale(1) translate(-256 -256)">
+    <g transform="translate(256 226) scale(0.84) translate(-256 -256)">
+      <g fill="none" stroke-width="54" stroke-linecap="round">
+        <path d="M256 110 A146 146 0 0 1 395 300" stroke="#FFB547"/>
+        <path d="M372 350 A146 146 0 0 1 150 356" stroke="#E8833A"/>
+        <path d="M118 300 A146 146 0 0 1 200 122" stroke="#FFE08A"/>
+      </g>
+      <path d="M206 306 L300 212 M240 206 H306 V272" fill="none" stroke="url(#arrow)" stroke-width="32" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+    <rect x="146" y="398" width="220" height="74" rx="37" fill="#FFB547"/>
+    <text x="256" y="449" text-anchor="middle" font-family="Inter, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif" font-size="46" font-weight="800" letter-spacing="6" fill="#1A1408">TEST</text>
+  </g>
+</svg>

@@ -1,24 +1,24 @@
-import { FALLBACK_EUR_RATES, type Currency, type EurRate } from '@/shared/config/currency';
+import type { Currency, EurRate } from '@/shared/config/currency';
+import type { ISODate } from '@/shared/lib/date';
+import { convertWith, getRatesFor, type RateTable } from './rates';
 
-/**
- * Сервис курсов. Сейчас возвращает фиксированную таблицу;
- * интерфейс уже асинхронный по смыслу (дата покупки), чтобы
- * позже подменить реализацию на сетевую без изменений в UI.
- */
+/** Курсы на дату покупки (из сохранённой истории, иначе свежие или встроенные). */
 export const ratesService = {
   /** Курс валюты к евро на указанную дату. */
-  getEurRate(currency: Currency, _date?: string): EurRate {
-    return FALLBACK_EUR_RATES[currency];
+  getEurRate(currency: Currency, date?: ISODate): EurRate {
+    return getRatesFor(date).rates[currency];
   },
 };
 
 /**
- * Перевод суммы между валютами.
- * `fromRate` — курс, зафиксированный в момент покупки (1 EUR = fromRate единиц).
+ * Перевод суммы между любыми валютами.
+ * rates — таблица, зафиксированная при покупке (у новых трат). У старых трат её нет:
+ * тогда курс исходной валюты — fromRate (сохранённый при покупке), остальные — текущие.
  */
-export function convert(amount: number, fromRate: EurRate, to: Currency): number {
-  if (fromRate <= 0) return 0;
-  return (amount / fromRate) * ratesService.getEurRate(to);
+export function convert(amount: number, from: Currency, to: Currency, rates?: RateTable, fromRate?: EurRate): number {
+  if (from === to) return amount;
+  const table = rates ?? { ...getRatesFor().rates, ...(fromRate ? { [from]: fromRate } : {}) };
+  return convertWith(amount, from, to, table);
 }
 
 /** Валюта для подсказки «≈ …» рядом с суммой. */

@@ -103,3 +103,13 @@
 .row .link {
   padding: 0;
 }
+
+/* Капча: пустая, пока Cloudflare не попросит нажать «Я не робот» */
+.captcha:empty {
+  display: none;
+}
+
+.captcha {
+  display: flex;
+  justify-content: center;
+}

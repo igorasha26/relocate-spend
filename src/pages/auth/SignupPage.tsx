@@ -5,7 +5,15 @@ import { analytics } from '@/shared/analytics';
 import { routes } from '@/shared/config/routes';
 import { useI18n, type TranslationKey } from '@/shared/i18n';
 import { Button, TextInput } from '@/shared/ui';
-import { authErrorKey, authFormStyles as styles, CodeInput, isValidEmail, MIN_PASSWORD, PasswordInput } from '@/features/auth';
+import {
+  authErrorKey,
+  authFormStyles as styles,
+  CodeInput,
+  isValidEmail,
+  MIN_PASSWORD,
+  PasswordInput,
+  useCaptcha,
+} from '@/features/auth';
 import { AuthShell, withEmail } from './AuthShell';
 import { useAuthDone } from './useAuthDone';
 
@@ -22,6 +30,16 @@ export function SignupPage() {
   const [step, setStep] = useState<'form' | 'code'>('form');
   const [error, setError] = useState<TranslationKey | null>(null);
   const [busy, setBusy] = useState(false);
+  const captcha = useCaptcha();
+
+  /** Запрос с капчей: токен одноразовый, после запроса сбрасываем. */
+  const withCaptcha = async <T,>(fn: (token: string | undefined) => Promise<T>) => {
+    try {
+      return await fn(await captcha.token());
+    } finally {
+      captcha.reset();
+    }
+  };
 
   useEffect(() => analytics.track('signup_opened'), []);
 
@@ -42,7 +60,7 @@ export function SignupPage() {
     if (!isValidEmail(email)) return setError('auth.errors.invalidEmail');
     if (password.length < MIN_PASSWORD) return setError('auth.errors.shortPassword');
     void run(async () => {
-      const session = await auth.signUp(email.trim(), password);
+      const session = await withCaptcha((token) => auth.signUp(email.trim(), password, token));
       if (session) done('signup_completed', 'auth.created');
       else {
         analytics.track('signup_code_sent');
@@ -64,7 +82,13 @@ export function SignupPage() {
     return (
       <AuthShell title={t('auth.codeTitle')} lead={withEmail(t('auth.codeText'), email.trim())} onBack={() => setStep('form')}>
         <form className={styles.form} onSubmit={verify} noValidate>
-          <CodeInput value={code} onChange={setCode} onResend={() => auth.resendSignupCode(email.trim())} autoFocus />
+          <CodeInput
+            value={code}
+            onChange={setCode}
+            onResend={() => withCaptcha((token) => auth.resendSignupCode(email.trim(), token))}
+            autoFocus
+          />
+          {captcha.node}
           {error && <p className={styles.error} role="alert">{t(error)}</p>}
           <div className={styles.actions}>
             <Button type="submit" disabled={busy} className={busy ? styles.busy : undefined}>
@@ -100,6 +124,7 @@ export function SignupPage() {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
         />
+        {captcha.node}
         {error && <p className={styles.error} role="alert">{t(error)}</p>}
         <div className={styles.actions}>
           <Button type="submit" disabled={busy} className={busy ? styles.busy : undefined}>

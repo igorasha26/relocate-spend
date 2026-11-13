@@ -112,6 +112,47 @@ create policy "feedback: anyone can send" on public.feedback
 revoke all on public.feedback from anon, authenticated;
 grant insert (kind, message, contact, app_version, app_env, language, platform, page) on public.feedback to anon, authenticated;
 
+-- Защита от спама (то же, что migrations/002)
+
+alter table public.feedback add column if not exists client_hash text;
+create index if not exists feedback_created_idx on public.feedback (created_at);
+
+create or replace function public.feedback_rate_limit()
+returns trigger
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  ip     text;
+  recent int;
+begin
+  ip := trim(split_part(coalesce(current_setting('request.headers', true)::json ->> 'x-forwarded-for', ''), ',', 1));
+  new.client_hash := case when ip = '' then null else md5(ip || ':relocate-spend') end;
+
+  select count(*) into recent
+  from public.feedback f
+  where f.created_at > now() - interval '1 hour'
+    and ((new.client_hash is not null and f.client_hash = new.client_hash)
+      or (new.user_id is not null and f.user_id = new.user_id));
+  if recent >= 5 then
+    raise exception 'feedback rate limit' using errcode = 'P0001';
+  end if;
+
+  select count(*) into recent from public.feedback f where f.created_at > now() - interval '10 minutes';
+  if recent >= 50 then
+    raise exception 'feedback rate limit' using errcode = 'P0001';
+  end if;
+
+  return new;
+end;
+$$;
+
+drop trigger if exists feedback_rate_limit on public.feedback;
+create trigger feedback_rate_limit
+  before insert on public.feedback
+  for each row execute function public.feedback_rate_limit();
+
 -- ---------- Настройки приложения (флаги функций) ----------
 -- Чтобы включить сканер всем: Table Editor → app_config → features → {"qrScan": true, "pro": false}
 create table if not exists public.app_config (

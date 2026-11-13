@@ -180,3 +180,16 @@
 .switchRow {
   padding: 4px 16px;
 }
+
+.ratesNote {
+  padding: 8px 16px 0;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--text-2);
+}
+
+.ratesNote a {
+  color: var(--text-2);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}

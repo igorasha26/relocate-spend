@@ -9,7 +9,7 @@ export { IconButton } from './IconButton/IconButton';
 export { KeyValueRow, ListGroup, ListRow, SectionLabel } from './List/List';
 export { Notice } from './Notice/Notice';
 export { OptionList, type Option } from './OptionList/OptionList';
-export { HeaderTag, PageHeader } from './PageHeader/PageHeader';
+export { HeaderTag, PageHeader, EnvBadge } from './PageHeader/PageHeader';
 export { Segmented } from './Segmented/Segmented';
 export { Sheet } from './Sheet/Sheet';
 export { Skeleton } from './Skeleton/Skeleton';

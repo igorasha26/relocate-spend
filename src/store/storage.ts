@@ -12,6 +12,7 @@ import { LANGUAGES, type Language } from '@/shared/i18n';
 import { isISODate } from '@/shared/lib/date';
 import { createId } from '@/shared/lib/id';
 import { ratesService } from '@/shared/lib/money';
+import { sanitizeTable } from '@/shared/lib/rates';
 import { createDefaultState, SCHEMA_VERSION } from './reducer';
 import type { PersistedState, ScanRecord, Settings, ThemePreference } from './types';
 
@@ -54,6 +55,8 @@ export function sanitizeExpense(raw: unknown, categoryIds: Set<string>): Expense
     amount,
     currency: raw.currency,
     eurRate: num(raw.eurRate) ?? ratesService.getEurRate(raw.currency, date),
+    rates: sanitizeTable(raw.rates) ?? undefined,
+    ratesDate: isISODate(raw.ratesDate) ? raw.ratesDate : undefined,
     categoryId: categoryId && categoryIds.has(categoryId) ? categoryId : FALLBACK_CATEGORY_ID,
     date,
     time: typeof raw.time === 'string' && /^\d{2}:\d{2}$/.test(raw.time) ? raw.time : undefined,

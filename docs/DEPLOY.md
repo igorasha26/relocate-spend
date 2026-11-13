@@ -70,6 +70,27 @@
 Откройте приложение (локально — `npm run dev` с `.env.local`) → «Создать аккаунт» → на почту придёт письмо с кодом → введите код → вы в аккаунте. Затем выйдите → «Забыли пароль?» → придёт код сброса.
 Письма не приходят? Resend → **Emails**: там видно каждое письмо и причину ошибки. Supabase → **Logs → Auth**.
 
+### 1.6. Капча Cloudflare Turnstile (защита от ботов)
+Порядок важен: **сначала** ключ в приложении, **потом** включение в Supabase. Иначе вход перестанет работать.
+
+1. **Cloudflare → Turnstile → Add widget**:
+   - Widget name: `RelocateSpend`
+   - Hostnames: `app.relocatespend.app`, `relocate-spend.pages.dev`, `dev.relocate-spend.pages.dev`, `localhost`
+   - Widget Mode: **Managed**
+   - → Create. Скопируйте **Site key** (публичный) и **Secret key** (секретный, никому не присылать).
+2. **Site key в приложение:**
+   - Cloudflare Pages → relocate-spend → Settings → Variables: `VITE_TURNSTILE_SITE_KEY` = Site key, в **Production и Preview**;
+   - локально — та же строка в `.env.local`;
+   - затем новый деплой (push или Retry deployment).
+3. Убедитесь, что на сайте всё работает (вход, регистрация).
+4. **Supabase → Authentication → Bot and Abuse Protection** (Attack Protection) → **Enable CAPTCHA protection** → Provider **Turnstile by Cloudflare** → Secret key → Save. В **обоих** проектах.
+
+Капча обычно невидима. Окошко «Я не робот» появляется только при подозрении на бота.
+
+### 1.7. Защита отзывов от спама
+SQL Editor → вставить [`supabase/migrations/002_feedback_rate_limit.sql`](../supabase/migrations/002_feedback_rate_limit.sql) → Run. В **обоих** проектах.
+Не больше 5 отзывов в час с одного устройства и не больше 50 за 10 минут на всё приложение.
+
 ---
 
 ## 2. PostHog (аналитика)
@@ -123,6 +144,7 @@ git checkout main
    | `VITE_SUPABASE_ANON_KEY` | anon / publishable key из `relocate-spend-prod` |
    | `VITE_POSTHOG_KEY` | `phc_…` |
    | `VITE_APP_ENV` | `production` |
+   | `VITE_TURNSTILE_SITE_KEY` | Site key Turnstile (шаг 1.6) |
 
 5. **Save and Deploy**. Через 1–2 минуты сайт откроется по адресу `https://relocate-spend.pages.dev`.
 

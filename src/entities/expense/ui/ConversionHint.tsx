@@ -1,6 +1,7 @@
 import { CURRENCIES, type Currency } from '@/shared/config/currency';
 import { useI18n } from '@/shared/i18n';
-import { convert, ratesService } from '@/shared/lib/money';
+import { convert } from '@/shared/lib/money';
+import { getRatesFor, useLatestRates, type RateTable } from '@/shared/lib/rates';
 import type { ISODate } from '@/shared/lib/date';
 import styles from './ConversionHint.module.css';
 
@@ -9,23 +10,26 @@ interface Props {
   currency: Currency;
   /** Дата покупки — курс берётся на неё. */
   date: ISODate;
-  /** Зафиксированный курс (у сохранённого расхода). Без него — курс на дату. */
+  /** Курсы, зафиксированные у сохранённого расхода. Без них — курсы на дату покупки. */
+  rates?: RateTable;
+  /** Курс у старых расходов без rates. */
   eurRate?: number;
   /** Текст после сумм, например «курс на 10.11.2026». */
   suffix?: string;
 }
 
 /** «≈ 20,99 € · ≈ 22,67 $ · ≈ 1 984 ₽» — сумма во всех остальных валютах. */
-export function ConversionHint({ amount, currency, date, eurRate, suffix }: Props) {
+export function ConversionHint({ amount, currency, date, rates, eurRate, suffix }: Props) {
   const { t, fmt } = useI18n();
+  useLatestRates(); // пришли свежие курсы — подсказка пересчитается
   if (amount <= 0) return null;
-  const rate = eurRate ?? ratesService.getEurRate(currency, date);
+  const table = rates ?? (eurRate ? undefined : getRatesFor(date).rates);
   const others = CURRENCIES.filter((c) => c !== currency);
   return (
     <p className={styles.hint}>
       {others.map((c) => (
         <span key={c} className={styles.chip}>
-          {t('common.approx', { amount: fmt.money(convert(amount, rate, c), c) })}
+          {t('common.approx', { amount: fmt.money(convert(amount, currency, c, table, eurRate), c) })}
         </span>
       ))}
       {suffix && <span className={styles.suffix}>{suffix}</span>}

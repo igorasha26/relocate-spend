@@ -51,3 +51,8 @@ export function PageHeader({ title, onBack, brand, trailing, className }: PageHe
 export function HeaderTag({ children }: { children: ReactNode }) {
   return <span className={styles.tag}>{children}</span>;
 }
+
+/** Метка «TEST» в шапке тестовой сборки — чтобы не перепутать с основной версией. */
+export function EnvBadge({ label }: { label: string }) {
+  return <span className={styles.envBadge}>{label}</span>;
+}

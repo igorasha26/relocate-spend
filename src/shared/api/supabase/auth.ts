@@ -27,6 +27,10 @@ interface TokenResponse {
 }
 
 const KEY = 'relocate-spend:auth';
+
+/** Токен капчи (Cloudflare Turnstile) — Supabase проверяет его, если капча включена в проекте. */
+const withCaptcha = <T extends object>(body: T, captchaToken?: string) =>
+  captchaToken ? { ...body, gotrue_meta_security: { captcha_token: captchaToken } } : body;
 const listeners = new Set<() => void>();
 let current: Session | null = readStored();
 
@@ -76,8 +80,11 @@ export const auth = {
    * Регистрация. Если в Supabase выключено подтверждение почты — сразу возвращает сессию,
    * иначе null: на почту ушёл код, его нужно ввести в verifyEmail.
    */
-  async signUp(email: string, password: string): Promise<Session | null> {
-    const r = await supabaseRequest<unknown>('/auth/v1/signup', { method: 'POST', body: { email, password } });
+  async signUp(email: string, password: string, captchaToken?: string): Promise<Session | null> {
+    const r = await supabaseRequest<unknown>('/auth/v1/signup', {
+      method: 'POST',
+      body: withCaptcha({ email, password }, captchaToken),
+    });
     if (isTokenResponse(r)) {
       const s = fromToken(r);
       setSession(s);
@@ -91,10 +98,10 @@ export const auth = {
     return null;
   },
 
-  async signIn(email: string, password: string): Promise<Session> {
+  async signIn(email: string, password: string, captchaToken?: string): Promise<Session> {
     const r = await supabaseRequest<TokenResponse>('/auth/v1/token?grant_type=password', {
       method: 'POST',
-      body: { email, password },
+      body: withCaptcha({ email, password }, captchaToken),
     });
     const s = fromToken(r);
     setSession(s);
@@ -113,13 +120,13 @@ export const auth = {
   },
 
   /** Отправить код подтверждения регистрации ещё раз. */
-  resendSignupCode(email: string) {
-    return supabaseRequest('/auth/v1/resend', { method: 'POST', body: { type: 'signup', email } });
+  resendSignupCode(email: string, captchaToken?: string) {
+    return supabaseRequest('/auth/v1/resend', { method: 'POST', body: withCaptcha({ type: 'signup', email }, captchaToken) });
   },
 
   /** Отправить код для сброса пароля. */
-  sendRecoveryCode(email: string) {
-    return supabaseRequest('/auth/v1/recover', { method: 'POST', body: { email } });
+  sendRecoveryCode(email: string, captchaToken?: string) {
+    return supabaseRequest('/auth/v1/recover', { method: 'POST', body: withCaptcha({ email }, captchaToken) });
   },
 
   async updatePassword(password: string) {

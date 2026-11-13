@@ -11,6 +11,7 @@ import {
   isEmailNotConfirmed,
   isValidEmail,
   PasswordInput,
+  useCaptcha,
 } from '@/features/auth';
 import { AuthShell, withEmail } from './AuthShell';
 import { useAuthDone } from './useAuthDone';
@@ -25,6 +26,16 @@ export function LoginPage() {
   const [step, setStep] = useState<'form' | 'code'>('form');
   const [error, setError] = useState<TranslationKey | null>(null);
   const [busy, setBusy] = useState(false);
+  const captcha = useCaptcha();
+
+  /** Запрос с капчей: токен одноразовый, после запроса сбрасываем. */
+  const withCaptcha = async <T,>(fn: (token: string | undefined) => Promise<T>) => {
+    try {
+      return await fn(await captcha.token());
+    } finally {
+      captcha.reset();
+    }
+  };
 
   const run = async (fn: () => Promise<void>) => {
     setBusy(true);
@@ -44,11 +55,11 @@ export function LoginPage() {
     if (!password) return setError('auth.errors.invalidCredentials');
     void run(async () => {
       try {
-        await auth.signIn(email.trim(), password);
+        await withCaptcha((token) => auth.signIn(email.trim(), password, token));
         done('login', 'auth.welcome');
       } catch (err) {
         if (!isEmailNotConfirmed(err)) throw err;
-        await auth.resendSignupCode(email.trim()).catch(() => {});
+        await withCaptcha((token) => auth.resendSignupCode(email.trim(), token)).catch(() => {});
         setStep('code');
       }
     });
@@ -67,7 +78,13 @@ export function LoginPage() {
     return (
       <AuthShell title={t('auth.codeTitle')} lead={withEmail(t('auth.codeText'), email.trim())} onBack={() => setStep('form')}>
         <form className={styles.form} onSubmit={verify} noValidate>
-          <CodeInput value={code} onChange={setCode} onResend={() => auth.resendSignupCode(email.trim())} autoFocus />
+          <CodeInput
+            value={code}
+            onChange={setCode}
+            onResend={() => withCaptcha((token) => auth.resendSignupCode(email.trim(), token))}
+            autoFocus
+          />
+          {captcha.node}
           {error && <p className={styles.error} role="alert">{t(error)}</p>}
           <Button type="submit" disabled={busy} className={busy ? styles.busy : undefined}>
             {t('auth.confirm')}
@@ -100,6 +117,7 @@ export function LoginPage() {
         <Link to={routes.resetPassword} state={{ email }} className={`${styles.link} ${styles.forgot}`}>
           {t('auth.forgot')}
         </Link>
+        {captcha.node}
         {error && <p className={styles.error} role="alert">{t(error)}</p>}
         <div className={styles.actions}>
           <Button type="submit" disabled={busy} className={busy ? styles.busy : undefined}>

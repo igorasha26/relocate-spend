@@ -9,6 +9,8 @@ interface ImportMetaEnv {
   readonly VITE_POSTHOG_KEY?: string;
   /** Сервер PostHog, по умолчанию европейский: https://eu.i.posthog.com */
   readonly VITE_POSTHOG_HOST?: string;
+  /** Site key капчи Cloudflare Turnstile. Secret key вставляется в Supabase (Bot and Abuse Protection). */
+  readonly VITE_TURNSTILE_SITE_KEY?: string;
   /** production | staging. На staging в профиле видна пометка «тестовая сборка». */
   readonly VITE_APP_ENV?: string;
   /** Принудительно включённые функции через запятую, например "qrScan,pro" — для тестовой копии. */

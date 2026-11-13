@@ -3,7 +3,15 @@ import { useLocation } from 'react-router-dom';
 import { auth } from '@/shared/api';
 import { useI18n, type TranslationKey } from '@/shared/i18n';
 import { Button, TextInput } from '@/shared/ui';
-import { authErrorKey, authFormStyles as styles, CodeInput, isValidEmail, MIN_PASSWORD, PasswordInput } from '@/features/auth';
+import {
+  authErrorKey,
+  authFormStyles as styles,
+  CodeInput,
+  isValidEmail,
+  MIN_PASSWORD,
+  PasswordInput,
+  useCaptcha,
+} from '@/features/auth';
 import { AuthShell, withEmail } from './AuthShell';
 import { useAuthDone } from './useAuthDone';
 
@@ -18,6 +26,16 @@ export function ResetPasswordPage() {
   const [step, setStep] = useState<'email' | 'code'>('email');
   const [error, setError] = useState<TranslationKey | null>(null);
   const [busy, setBusy] = useState(false);
+  const captcha = useCaptcha();
+
+  /** Запрос с капчей: токен одноразовый, после запроса сбрасываем. */
+  const withCaptcha = async <T,>(fn: (token: string | undefined) => Promise<T>) => {
+    try {
+      return await fn(await captcha.token());
+    } finally {
+      captcha.reset();
+    }
+  };
 
   const run = async (fn: () => Promise<void>) => {
     setBusy(true);
@@ -35,7 +53,7 @@ export function ResetPasswordPage() {
     e.preventDefault();
     if (!isValidEmail(email)) return setError('auth.errors.invalidEmail');
     void run(async () => {
-      await auth.sendRecoveryCode(email.trim());
+      await withCaptcha((token) => auth.sendRecoveryCode(email.trim(), token));
       setStep('code');
     });
   };
@@ -55,7 +73,13 @@ export function ResetPasswordPage() {
     return (
       <AuthShell title={t('auth.resetTitle')} lead={withEmail(t('auth.resetCodeText'), email.trim())} onBack={() => setStep('email')}>
         <form className={styles.form} onSubmit={save} noValidate>
-          <CodeInput value={code} onChange={setCode} onResend={() => auth.sendRecoveryCode(email.trim())} autoFocus />
+          <CodeInput
+            value={code}
+            onChange={setCode}
+            onResend={() => withCaptcha((token) => auth.sendRecoveryCode(email.trim(), token))}
+            autoFocus
+          />
+          {captcha.node}
           <PasswordInput
             label={t('auth.newPassword')}
             autoComplete="new-password"
@@ -87,6 +111,7 @@ export function ResetPasswordPage() {
           onChange={(e) => setEmail(e.target.value)}
           autoFocus
         />
+        {captcha.node}
         {error && <p className={styles.error} role="alert">{t(error)}</p>}
         <Button type="submit" disabled={busy} className={busy ? styles.busy : undefined}>
           {t('auth.sendCode')}

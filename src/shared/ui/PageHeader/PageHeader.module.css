@@ -75,3 +75,17 @@
   font-size: 13px;
   font-weight: 600;
 }
+
+.envBadge {
+  display: inline-flex;
+  align-items: center;
+  height: 24px;
+  margin-right: 8px;
+  padding: 0 9px;
+  border-radius: 999px;
+  background: #ffb547;
+  color: #1a1408;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}

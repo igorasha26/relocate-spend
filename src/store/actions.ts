@@ -3,13 +3,19 @@ import type { Expense, ExpenseInput, ExpenseItem } from '@/entities/expense';
 import { analytics } from '@/shared/analytics';
 import { today } from '@/shared/lib/date';
 import { createId, hashString } from '@/shared/lib/id';
-import { ratesService } from '@/shared/lib/money';
+import { getRatesFor } from '@/shared/lib/rates';
 import type { Action, Settings } from './types';
 
 /**
  * Всё «нечистое» (id, время, курсы) происходит здесь, а reducer остаётся чистым.
  * Компоненты получают эти функции через useActions().
  */
+/** Курсы на дату покупки: фиксируются в трате, чтобы пересчёт не менялся со временем. */
+function rateFields(currency: Expense['currency'], date: Expense['date']) {
+  const { rates, date: ratesDate } = getRatesFor(date);
+  return { eurRate: rates[currency], rates, ratesDate: ratesDate ?? undefined };
+}
+
 export function createActions(dispatch: (action: Action) => void) {
   return {
     addExpense(input: ExpenseInput): Expense {
@@ -17,7 +23,7 @@ export function createActions(dispatch: (action: Action) => void) {
       const expense: Expense = {
         ...input,
         id: createId(),
-        eurRate: ratesService.getEurRate(input.currency, input.date),
+        ...rateFields(input.currency, input.date),
         createdAt: now,
         updatedAt: now,
       };
@@ -32,10 +38,15 @@ export function createActions(dispatch: (action: Action) => void) {
       return expense;
     },
 
-    updateExpense(id: string, input: Partial<ExpenseInput>) {
+    /** previous — расход до правки: курсы пересчитываются, только если сменились валюта или дата. */
+    updateExpense(id: string, input: Partial<ExpenseInput>, previous?: Pick<Expense, 'currency' | 'date' | 'rates'>) {
       const patch: Partial<Expense> = { ...input };
-      // Сменилась валюта или дата — фиксируем курс на новую дату покупки.
-      if (input.currency) patch.eurRate = ratesService.getEurRate(input.currency, input.date);
+      const currency = input.currency ?? previous?.currency;
+      const date = input.date ?? previous?.date;
+      const currencyChanged = input.currency !== undefined && input.currency !== previous?.currency;
+      const dateChanged = input.date !== undefined && input.date !== previous?.date;
+      const legacy = previous !== undefined && !previous.rates; // старая трата без таблицы курсов
+      if (currency && date && (currencyChanged || dateChanged || legacy)) Object.assign(patch, rateFields(currency, date));
       dispatch({ type: 'expense/update', payload: { id, patch } });
       analytics.track('expense_edited');
     },

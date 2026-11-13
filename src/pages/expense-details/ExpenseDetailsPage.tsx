@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useCategoryName } from '@/entities/category';
 import { ConversionHint, isAmountFromItems, ItemsCard } from '@/entities/expense';
+import { ratesService } from '@/shared/lib/money';
 import { DeleteExpenseDialog } from '@/features/expense-delete';
 import { ItemsEditSheet } from '@/features/expense-form';
 import { useActions, useAppState, useCategory, useExpense } from '@/store';
@@ -40,7 +41,13 @@ export function ExpenseDetailsPage() {
         </span>
         <p className={styles.amount}>{fmt.money(expense.amount, expense.currency)}</p>
         <div className={styles.approx}>
-          <ConversionHint amount={expense.amount} currency={expense.currency} date={expense.date} eurRate={expense.eurRate} />
+          <ConversionHint
+            amount={expense.amount}
+            currency={expense.currency}
+            date={expense.date}
+            rates={expense.rates}
+            eurRate={expense.rates ? undefined : expense.eurRate}
+          />
         </div>
       </section>
 
@@ -69,11 +76,14 @@ export function ExpenseDetailsPage() {
         </Button>
       )}
 
-      {expense.currency !== 'EUR' && (
-        <p className={styles.rate}>
-          {t('details.purchaseRate', { rate: fmt.number(expense.eurRate, 2), currency: expense.currency })}
-        </p>
-      )}
+      {/* Курс, по которому трата пересчитывается во все валюты (зафиксирован при записи) */}
+      <p className={styles.rate}>
+        {t('details.purchaseRate', {
+          rate: fmt.number(expense.currency === 'EUR' ? (expense.rates?.RSD ?? ratesService.getEurRate('RSD', expense.date)) : expense.eurRate, 2),
+          currency: expense.currency === 'EUR' ? 'RSD' : expense.currency,
+        })}
+        {expense.ratesDate && ` · ${t('details.ratesOn', { date: fmt.dayMonthYear(expense.ratesDate) })}`}
+      </p>
 
       <div className={styles.actions}>
         <Button onClick={() => navigate(routes.editExpense(expense.id))}>{t('details.edit')}</Button>

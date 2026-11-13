@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import { analytics } from '@/shared/analytics';
 import { useSession } from '@/shared/api';
 import { refreshRemoteConfig } from '@/shared/config/features';
+import { refreshRates } from '@/shared/lib/rates';
 import { useAppState } from '@/store';
 
 /**
@@ -34,7 +35,12 @@ export function useAppLifecycle() {
 
   useEffect(() => {
     void refreshRemoteConfig(true);
-    const onVisible = () => document.visibilityState === 'visible' && void refreshRemoteConfig();
+    void refreshRates(); // курсы валют: не чаще раза в 6 часов
+    const onVisible = () => {
+      if (document.visibilityState !== 'visible') return;
+      void refreshRemoteConfig();
+      void refreshRates();
+    };
     document.addEventListener('visibilitychange', onVisible);
     return () => document.removeEventListener('visibilitychange', onVisible);
   }, []);

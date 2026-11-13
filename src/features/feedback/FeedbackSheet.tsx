@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { analytics } from '@/shared/analytics';
-import { useSession } from '@/shared/api';
+import { ApiError, useSession } from '@/shared/api';
 import { useI18n } from '@/shared/i18n';
 import { Button, Segmented, Sheet, TextArea, TextInput, useToast } from '@/shared/ui';
 import { sendFeedback, type FeedbackKind } from './api';
@@ -37,8 +37,8 @@ export function FeedbackSheet({ open, onClose }: Props) {
       toast(t('feedback.sent'));
       setMessage('');
       onClose();
-    } catch {
-      setError(t('feedback.error'));
+    } catch (e) {
+      setError(e instanceof ApiError && /rate limit/i.test(e.message) ? t('feedback.tooMany') : t('feedback.error'));
     } finally {
       setBusy(false);
     }

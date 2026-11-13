@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCategoryName } from '@/entities/category';
+import { ENV } from '@/shared/config/env';
 import {
   applyFilters,
   EMPTY_FILTERS,
@@ -15,7 +16,7 @@ import { useActions, useAppState } from '@/store';
 import { routes } from '@/shared/config/routes';
 import { useOnlineStatus } from '@/shared/hooks/useOnlineStatus';
 import { useI18n } from '@/shared/i18n';
-import { Button, EmptyState, HeaderTag, IconButton, InfoCard, Notice, Page, PageHeader, TextInput } from '@/shared/ui';
+import { Button, EmptyState, EnvBadge, HeaderTag, IconButton, InfoCard, Notice, Page, PageHeader, TextInput } from '@/shared/ui';
 import { ExpenseList, SearchResults } from '@/widgets/expense-list';
 import { SpendingOverview } from '@/widgets/spending-overview';
 import { HomeSkeleton } from './HomeSkeleton';
@@ -24,6 +25,13 @@ import { useHomeState } from './useHomeState';
 
 export function HomePage() {
   const { t, tp, fmt } = useI18n();
+  // В тестовой и локальной сборке рядом с «Сербия» — метка TEST / DEV
+  const headerTrailing = (
+    <span style={{ display: 'flex', alignItems: 'center' }}>
+      {!ENV.isProduction && <EnvBadge label={ENV.appEnv === 'staging' ? 'TEST' : 'DEV'} />}
+      <HeaderTag>{t('common.country')}</HeaderTag>
+    </span>
+  );
   const navigate = useNavigate();
   const { status, expenses, categories } = useAppState();
   const { reload } = useActions();
@@ -47,7 +55,7 @@ export function HomePage() {
   const found = useMemo(() => searchExpenses(filtered, query, nameById), [filtered, query, nameById]);
 
   const header = (
-    <PageHeader title={t('home.title')} brand trailing={<HeaderTag>{t('common.country')}</HeaderTag>} />
+    <PageHeader title={t('home.title')} brand trailing={headerTrailing} />
   );
 
   /* ---------- 13 · Загрузка ---------- */
@@ -90,7 +98,7 @@ export function HomePage() {
     return (
       <Page gap="sm">
         <div className={styles.searchHeader}>
-          <PageHeader title={t('home.title')} trailing={<HeaderTag>{t('common.country')}</HeaderTag>} />
+          <PageHeader title={t('home.title')} trailing={headerTrailing} />
           <TextInput
             autoFocus
             enterKeyHint="search"
