@@ -96,18 +96,18 @@ SQL Editor проекта **relocate-spend-dev** → вставить [`supabase
 В **prod** этот скрипт запускаем, только когда группы будут готовы к выпуску. Иначе в основной версии появятся таблицы, которыми ещё никто не пользуется (это не страшно, но лучше по порядку).
 
 ### 1.9. Письмо-приглашение в группу — пока только DEV
+Письмо — только уведомление: «Игорь приглашает вас в группу «Дом». Откройте приложение — приглашение ждёт на главном экране». Ссылки в письме нет, принимают приглашение в самом приложении.
+
 1. SQL Editor проекта **relocate-spend-dev** → вставить [`supabase/migrations/004_invite_email.sql`](../supabase/migrations/004_invite_email.sql) → Run.
+   Если 004 уже выполняли раньше (версия со ссылкой) — вместо него выполните [`005_invite_email_no_link.sql`](../supabase/migrations/005_invite_email_no_link.sql).
 2. **Новый запрос** (не в файле — ключ в git не кладём): подставьте свой ключ Resend `re_…` → Run.
    ```sql
    insert into private.secrets (name, value) values ('resend_api_key', 're_ВАШ_КЛЮЧ')
    on conflict (name) do update set value = excluded.value;
    ```
    Это тот же ключ, что в Supabase → Authentication → SMTP (пароль). Или создайте отдельный в Resend → API Keys (права *Sending access*, домен `mail.relocatespend.app`).
-3. Проверка: пригласите в группу свою вторую почту — письмо «… приглашает вас в группу» придёт за минуту. Если нет — Resend → Emails (видно, ушло ли) и в Supabase: `select status_code, content from net._http_response order by created desc limit 5;`
-4. В **prod** — вместе с выпуском групп: шаги 1–2, затем адрес приложения в ссылке:
-   ```sql
-   update private.secrets set value = 'https://app.relocatespend.app' where name = 'app_url';
-   ```
+3. Проверка: пригласите в группу свою вторую почту — письмо придёт за минуту. Если нет — Resend → Emails (видно, ушло ли) и в Supabase: `select status_code, content from net._http_response order by created desc limit 5;`
+4. В **prod** — вместе с выпуском групп: шаги 1–2 (только 004, 005 не нужен).
 
 Лимиты: не больше 10 приглашений в сутки от одного человека, повтор той же почте — не чаще раза в 10 минут. Без ключа приглашения работают как раньше, просто без письма.
 

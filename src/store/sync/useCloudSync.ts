@@ -231,7 +231,12 @@ export function useCloudSync(state: AppState, dispatch: Dispatch<Action>): SyncA
   // Появилась сеть, вернулись в приложение, периодически — изменения с других устройств
   useEffect(() => {
     if (!userId) return;
-    const onVisible = () => document.visibilityState === 'visible' && void sync();
+    const onVisible = () => {
+      if (document.visibilityState !== 'visible') return;
+      // вернулись в приложение (например, после письма о приглашении) — сразу проверяем группы и приглашения
+      lastGroupsRefresh.current = 0;
+      void sync();
+    };
     const onOnline = () => void sync();
     const onOffline = () => setStatus('offline');
     document.addEventListener('visibilitychange', onVisible);

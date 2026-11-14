@@ -19,10 +19,8 @@ create table if not exists private.secrets (
   value text not null
 );
 
--- Адрес приложения в ссылке из письма и отправитель. В PROD поменяйте app_url:
---   update private.secrets set value = 'https://app.relocatespend.app' where name = 'app_url';
+-- Отправитель письма
 insert into private.secrets (name, value) values
-  ('app_url',   'https://dev.relocate-spend.pages.dev'),
   ('mail_from', 'RelocateSpend <noreply@mail.relocatespend.app>')
 on conflict (name) do nothing;
 
@@ -46,17 +44,14 @@ set search_path = ''
 as $$
 declare
   key      text;
-  app_url  text;
   sender   text;
   inv      record;
   inviter  text;
   members  int;
-  link     text;
   html     text;
   plain    text;
 begin
   select value into key     from private.secrets where name = 'resend_api_key';
-  select value into app_url from private.secrets where name = 'app_url';
   select value into sender  from private.secrets where name = 'mail_from';
   if key is null or key not like 're_%' then
     return; -- ключ не задан: приглашение видно в приложении, письма нет
@@ -75,8 +70,6 @@ begin
    where u.id = inv.invited_by;
   select count(*) into members from public.group_members where group_id = inv.group_id;
 
-  link := coalesce(app_url, 'https://app.relocatespend.app') || '/profile?invite=1';
-
   html := format($h$<!doctype html>
 <html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
 <body style="margin:0;padding:0;background:#f2f5f4;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;color:#16211e">
@@ -88,14 +81,13 @@ begin
 <tr><td style="font-size:15px;line-height:1.5;color:#3d4a45;padding-bottom:24px">
 Группа — общий список трат: все участники видят траты друг друга и добавляют свои. Сейчас в группе: %3$s.
 </td></tr>
-<tr><td style="padding-bottom:24px">
-<a href="%4$s" style="display:inline-block;background:#176b5b;color:#ffffff;text-decoration:none;font-size:16px;font-weight:600;padding:14px 26px;border-radius:14px">Открыть приглашение</a>
+<tr><td style="font-size:15px;line-height:1.5;color:#16211e;background:#eef6f3;border-radius:14px;padding:16px 18px">
+<b>Как принять:</b> откройте приложение RelocateSpend — приглашение ждёт на главном экране. Нажмите «Принять».<br><br>
+Ещё нет аккаунта? Зарегистрируйтесь в приложении с почтой <b>%4$s</b> — приглашение появится сразу после входа. Оно действует 7 дней.
 </td></tr>
-<tr><td style="font-size:13px;line-height:1.5;color:#69756f;padding-bottom:16px">
-Войдите или зарегистрируйтесь с почтой <b>%5$s</b> — приглашение появится в разделе «Профиль». Оно действует 7 дней.
-</td></tr>
+<tr><td style="height:20px"></td></tr>
 <tr><td style="font-size:12px;line-height:1.5;color:#9aa59f;border-top:1px solid #e6ecea;padding-top:16px">
-%1$s invited you to the shared expense group “%2$s” in RelocateSpend. Sign in with this email to accept.<br>
+%1$s invited you to the shared expense group “%2$s” in RelocateSpend. Open the app and tap “Accept” on the home screen.<br>
 Если вы не ждали это письмо, просто проигнорируйте его.
 </td></tr>
 </table>
@@ -105,13 +97,12 @@ begin
     private.html_escape(inviter),
     private.html_escape(inv.group_name),
     members,
-    private.html_escape(link),
     private.html_escape(inv.email)
   );
 
   plain := format(
-    E'%s приглашает вас в группу «%s» в RelocateSpend.\n\nОткройте: %s\nВойдите или зарегистрируйтесь с почтой %s — приглашение появится в «Профиле». Действует 7 дней.\n\n%s invited you to the group “%s”. Sign in with this email to accept.',
-    inviter, inv.group_name, link, inv.email, inviter, inv.group_name
+    E'%s приглашает вас в группу «%s» в RelocateSpend.\n\nКак принять: откройте приложение RelocateSpend — приглашение ждёт на главном экране, нажмите «Принять».\nЕщё нет аккаунта? Зарегистрируйтесь в приложении с почтой %s — приглашение появится сразу после входа. Действует 7 дней.\n\n%s invited you to the group “%s”. Open the app and tap “Accept” on the home screen.',
+    inviter, inv.group_name, inv.email, inviter, inv.group_name
   );
 
   perform net.http_post(
