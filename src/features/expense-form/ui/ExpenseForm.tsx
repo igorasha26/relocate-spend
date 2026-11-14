@@ -34,11 +34,25 @@ type SheetName = 'currency' | 'category' | 'date' | null;
  * Форма расхода — общая для «Добавить» и «Изменить».
  * Набор полей зависит от категории (category.fields): у «Жилья» нет магазина и позиций.
  */
+const MERCHANT_KINDS = {
+  food: 1,
+  furniture: 1,
+  medicine: 1,
+  internet: 1,
+  docs: 1,
+  housing: 1,
+  transport: 1,
+  other: 1,
+} as const;
+type MerchantKind = keyof typeof MERCHANT_KINDS;
+
 export function ExpenseForm({ form, submitLabel, onSubmit, header, autoFocusAmount }: Props) {
   const { t, fmt } = useI18n();
   const categoryName = useCategoryName();
   const { draft, set } = form;
   const category = useCategory(draft.categoryId ?? undefined);
+  // Подпись и пример места зависят от категории: «Аптека / клиника», «Оператор»…
+  const merchantKind = category?.builtIn && category.id in MERCHANT_KINDS ? (category.id as MerchantKind) : 'custom';
   const [sheet, setSheet] = useState<SheetName>(null);
   const formatAmount = (value: number) => (value > 0 ? String(Math.round(value * 100) / 100).replace('.', ',') : '');
 
@@ -88,8 +102,8 @@ export function ExpenseForm({ form, submitLabel, onSubmit, header, autoFocusAmou
 
       {showMerchant && (
         <TextInput
-          label={`${t('form.merchant')} · ${t('common.optional')}`}
-          placeholder={t('form.merchantPlaceholder')}
+          label={`${t(`form.merchantBy.${merchantKind}.label`)} · ${t('common.optional')}`}
+          placeholder={t(`form.merchantBy.${merchantKind}.placeholder`)}
           value={draft.merchant}
           maxLength={60}
           onChange={(e) => set('merchant', e.target.value)}
