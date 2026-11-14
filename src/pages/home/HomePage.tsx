@@ -12,7 +12,8 @@ import {
 } from '@/entities/expense';
 import { FiltersSheet } from '@/features/expense-filters';
 import { isFuture, PeriodNavigator, PeriodSheet, previousPeriod, shiftPeriod, usePeriodLabels } from '@/features/period';
-import { useActions, useAppState } from '@/store';
+import { filterBySpace, groupSpace, useActions, useAppState, useGroups, useSpace } from '@/store';
+import { InviteCard, SpaceSwitcher } from '@/features/groups';
 import { routes } from '@/shared/config/routes';
 import { useOnlineStatus } from '@/shared/hooks/useOnlineStatus';
 import { useI18n } from '@/shared/i18n';
@@ -33,7 +34,11 @@ export function HomePage() {
     </span>
   );
   const navigate = useNavigate();
-  const { status, expenses, categories } = useAppState();
+  const { status, expenses: allExpenses, categories } = useAppState();
+  // Выбранный раздел (все / личные / группа) меняет только набор трат — экран тот же
+  const { space, setSpace } = useSpace();
+  const { invites } = useGroups();
+  const expenses = useMemo(() => filterBySpace(allExpenses, space), [allExpenses, space]);
   const { reload } = useActions();
   const online = useOnlineStatus();
   const labels = usePeriodLabels();
@@ -131,6 +136,10 @@ export function HomePage() {
     <Page>
       {header}
       {!online && <Notice tone="warning" title={t('home.offlineBanner')} />}
+      {invites.map((inv) => (
+        <InviteCard key={inv.id} invite={inv} onAccepted={(id) => setSpace(groupSpace(id))} />
+      ))}
+      <SpaceSwitcher />
 
       <PeriodNavigator period={period} onChange={setPeriod} />
 

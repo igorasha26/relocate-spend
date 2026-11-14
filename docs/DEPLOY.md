@@ -95,6 +95,22 @@ SQL Editor → вставить [`supabase/migrations/002_feedback_rate_limit.sq
 SQL Editor проекта **relocate-spend-dev** → вставить [`supabase/migrations/003_groups.sql`](../supabase/migrations/003_groups.sql) → Run.
 В **prod** этот скрипт запускаем, только когда группы будут готовы к выпуску. Иначе в основной версии появятся таблицы, которыми ещё никто не пользуется (это не страшно, но лучше по порядку).
 
+### 1.9. Письмо-приглашение в группу — пока только DEV
+1. SQL Editor проекта **relocate-spend-dev** → вставить [`supabase/migrations/004_invite_email.sql`](../supabase/migrations/004_invite_email.sql) → Run.
+2. **Новый запрос** (не в файле — ключ в git не кладём): подставьте свой ключ Resend `re_…` → Run.
+   ```sql
+   insert into private.secrets (name, value) values ('resend_api_key', 're_ВАШ_КЛЮЧ')
+   on conflict (name) do update set value = excluded.value;
+   ```
+   Это тот же ключ, что в Supabase → Authentication → SMTP (пароль). Или создайте отдельный в Resend → API Keys (права *Sending access*, домен `mail.relocatespend.app`).
+3. Проверка: пригласите в группу свою вторую почту — письмо «… приглашает вас в группу» придёт за минуту. Если нет — Resend → Emails (видно, ушло ли) и в Supabase: `select status_code, content from net._http_response order by created desc limit 5;`
+4. В **prod** — вместе с выпуском групп: шаги 1–2, затем адрес приложения в ссылке:
+   ```sql
+   update private.secrets set value = 'https://app.relocatespend.app' where name = 'app_url';
+   ```
+
+Лимиты: не больше 10 приглашений в сутки от одного человека, повтор той же почте — не чаще раза в 10 минут. Без ключа приглашения работают как раньше, просто без письма.
+
 ---
 
 ## 2. PostHog (аналитика)
@@ -114,7 +130,7 @@ SQL Editor проекта **relocate-spend-dev** → вставить [`supabase
 | Откуда приходят | **Web analytics** | готовая вкладка: источники и страницы |
 
 **Все события приложения:**
-`app_opened` (с полями `expenses_count`, `logged_in`, `standalone`), `$pageview`, `auth_prompt_shown`, `auth_prompt_choice` (`signup` / `login` / `skip`), `onboarding_completed`, `onboarding_skipped`, `expense_added` (`source`, `items`, `currency`, `category`), `expense_edited`, `expense_deleted`, `category_created`, `scan_soon_tapped`, `signup_opened`, `signup_code_sent`, `signup_completed`, `login`, `logout`, `password_reset`, `account_deleted`, `feedback_sent`, `install_prompt_shown`, `install_accepted`, `whats_new_closed`, `update_applied`.
+`app_opened` (с полями `expenses_count`, `logged_in`, `standalone`), `$pageview`, `auth_prompt_shown`, `auth_prompt_choice` (`signup` / `login` / `skip`), `onboarding_completed`, `onboarding_skipped`, `expense_added` (`source`, `items`, `currency`, `category`), `expense_edited`, `expense_deleted`, `category_created`, `scan_soon_tapped`, `signup_opened`, `signup_code_sent`, `signup_completed`, `login`, `logout`, `password_reset`, `account_deleted`, `feedback_sent`, `install_prompt_shown`, `install_accepted`, `whats_new_closed`, `update_applied`, `space_switched` (`to`: all / personal / group), `group_invite_accepted`, `group_left`.
 
 Суммы, названия трат, комментарии и почта в PostHog **не отправляются**.
 

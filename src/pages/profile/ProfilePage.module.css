@@ -195,28 +195,15 @@
 }
 
 /* ---------- Группы ---------- */
-.invite {
+.invites {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  margin-bottom: 10px;
-  padding: 14px;
-  border-radius: var(--radius-lg);
-  background: color-mix(in srgb, var(--accent) 12%, var(--surface));
-}
-
-.inviteText {
-  display: flex;
-  align-items: flex-start;
   gap: 10px;
-  font-size: 15px;
-  line-height: 1.4;
+  margin-bottom: 10px;
 }
 
-.inviteActions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 8px;
+.invites:empty {
+  display: none;
 }
 
 .groupsHint {

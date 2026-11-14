@@ -5,6 +5,12 @@ import type { ReactNode, SVGProps } from 'react';
  * Чтобы добавить иконку — допишите ключ в ICONS.
  */
 const ICONS = {
+  layers: (
+    <>
+      <path d="m12 3 9 5-9 5-9-5 9-5Z" />
+      <path d="m3 12.5 9 5 9-5M3 16.5l9 5 9-5" />
+    </>
+  ),
   users: (
     <>
       <circle cx="9" cy="8.5" r="3.5" />

@@ -6,7 +6,8 @@ import { CategoryPickerSheet } from '@/features/category';
 import { CurrencySheet } from '@/features/currency-picker';
 import { AmountCard } from '@/features/expense-form';
 import type { ParsedReceipt } from '@/features/receipt-scan';
-import { useActions, useCategory } from '@/store';
+import { useActions, useCategory, useSpace } from '@/store';
+import { SpaceTarget } from '@/features/groups';
 import { routes } from '@/shared/config/routes';
 import type { Currency } from '@/shared/config/currency';
 import { useI18n } from '@/shared/i18n';
@@ -37,6 +38,9 @@ function ReviewForm({ receipt }: { receipt: ParsedReceipt }) {
   const [sheet, setSheet] = useState<'category' | 'currency' | null>(null);
   const [itemsWithIds] = useState(() => receipt.items.map((item) => ({ ...item, id: createId() })));
   const category = useCategory(categoryId ?? undefined);
+  const { targetGroupId, groups } = useSpace();
+  const [target, setTarget] = useState<string | null>(targetGroupId);
+  const targetName = groups.find((g) => g.id === target)?.name;
 
   const value = parseAmount(amount);
   const valid = value > 0 && categoryId !== null;
@@ -55,8 +59,9 @@ function ReviewForm({ receipt }: { receipt: ParsedReceipt }) {
       // Сумма чека совпадает с позициями — дальше она будет пересчитываться по ним
       amountFromItems: Math.abs(value - itemsTotal(itemsWithIds)) < 0.01,
       source: 'qr',
+      groupId: targetName ? target! : undefined,
     });
-    toast(t('form.saved'));
+    toast(targetName ? t('space.savedTo', { group: targetName }) : t('form.saved'));
     navigate(routes.expense(expense.id), { replace: true });
   };
 
@@ -65,6 +70,7 @@ function ReviewForm({ receipt }: { receipt: ParsedReceipt }) {
       <PageHeader title={t('review.title')} onBack={() => navigate(-1)} />
 
       <Notice tone="success" icon="check" title={t('review.successTitle')} text={t('review.successText')} />
+      <SpaceTarget value={target} onChange={setTarget} />
 
       <AmountCard
         label={t('review.amount')}

@@ -4,3 +4,7 @@ export { LeaveGroupDialog } from './LeaveGroupDialog';
 export { MemberPill } from './MemberPill';
 export { NameSheet } from './NameSheet';
 export { default as groupStyles } from './groups.module.css';
+export { InviteCard } from './InviteCard';
+export { SpaceSheet } from './SpaceSheet';
+export { SpaceSwitcher } from './SpaceSwitcher';
+export { SpaceTarget } from './SpaceTarget';

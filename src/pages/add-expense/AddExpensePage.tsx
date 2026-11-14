@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { emptyDraft, ExpenseForm, useExpenseDraft } from '@/features/expense-form';
-import { useActions, useSettings } from '@/store';
+import { SpaceTarget } from '@/features/groups';
+import { groupSpace, useActions, useSettings, useSpace } from '@/store';
 import { analytics } from '@/shared/analytics';
 import { useFeature } from '@/shared/config/features';
 import { routes } from '@/shared/config/routes';
@@ -19,6 +20,10 @@ export function AddExpensePage() {
   const form = useExpenseDraft(() => emptyDraft(baseCurrency));
   const [soonOpen, setSoonOpen] = useState(false);
   const qrScan = useFeature('qrScan');
+  // Куда записать: по умолчанию — группа, открытая на главной, иначе личные
+  const { space, setSpace, targetGroupId, groups } = useSpace();
+  const [target, setTarget] = useState<string | null>(targetGroupId);
+  const targetName = groups.find((g) => g.id === target)?.name;
 
   return (
     <Page>
@@ -27,6 +32,7 @@ export function AddExpensePage() {
         form={form}
         submitLabel={t('form.save')}
         header={
+          <>
           <button
             type="button"
             className={styles.scanBanner}
@@ -46,10 +52,14 @@ export function AddExpensePage() {
             </span>
             {!qrScan && <span className={styles.soonBadge}>{t('soon.badge')}</span>}
           </button>
+          <SpaceTarget value={target} onChange={setTarget} />
+          </>
         }
         onSubmit={(input) => {
-          addExpense(input);
-          toast(t('form.saved'));
+          addExpense({ ...input, groupId: targetName ? target! : undefined });
+          // на главной должна быть видна только что добавленная трата
+          if (space !== 'all') setSpace(targetName ? groupSpace(target!) : 'personal');
+          toast(targetName ? t('space.savedTo', { group: targetName }) : t('form.saved'));
           navigate(routes.home);
         }}
       />

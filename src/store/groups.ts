@@ -166,9 +166,9 @@ export function useGroups() {
 }
 
 /** Ошибки RPC групп → ключ перевода. */
-export function groupErrorCode(error: unknown): 'group_full' | 'already_member' | 'invalid_email' | 'invite_not_found' | 'too_many_groups' | 'unknown' {
+export function groupErrorCode(error: unknown): 'group_full' | 'already_member' | 'invalid_email' | 'invite_not_found' | 'too_many_groups' | 'too_many_invites' | 'unknown' {
   const message = error instanceof Error ? error.message : '';
-  for (const code of ['group_full', 'already_member', 'invalid_email', 'invite_not_found', 'too_many_groups'] as const) {
+  for (const code of ['group_full', 'already_member', 'invalid_email', 'invite_not_found', 'too_many_groups', 'too_many_invites'] as const) {
     if (message.includes(code)) return code;
   }
   return 'unknown';

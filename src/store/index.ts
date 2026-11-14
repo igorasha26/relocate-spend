@@ -14,3 +14,5 @@ export type { SyncApi, SyncStatus } from './sync/useCloudSync';
 export type { AppState, Settings, ThemePreference } from './types';
 export { groupsStore, useGroups, memberColor, groupErrorCode, MAX_GROUP_MEMBERS } from './groups';
 export type { Group, GroupMember, GroupInviteIn } from './groups';
+export { useSpace, spaceStore, filterBySpace, groupSpace, spaceGroupId } from './space';
+export type { SpaceId, SpaceInfo } from './space';

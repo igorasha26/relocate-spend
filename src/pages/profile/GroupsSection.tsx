@@ -1,68 +1,34 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { MemberPill, NameSheet } from '@/features/groups';
-import { analytics } from '@/shared/analytics';
+import { InviteCard, MemberPill, NameSheet } from '@/features/groups';
 import { useSession } from '@/shared/api';
 import { HAS_BACKEND } from '@/shared/config/env';
 import { routes } from '@/shared/config/routes';
 import { useI18n } from '@/shared/i18n';
-import { Button, Icon, ListGroup, ListRow, SectionLabel, useToast } from '@/shared/ui';
-import { groupErrorCode, groupsStore, useGroups, useSync } from '@/store';
+import { Icon, ListGroup, ListRow, SectionLabel } from '@/shared/ui';
+import { groupsStore, useGroups } from '@/store';
 import styles from './ProfilePage.module.css';
 
 /** Профиль: приглашения в группы, мои группы, «Создать группу», моё имя. Только с аккаунтом. */
 export function GroupsSection() {
   const { t, tp } = useI18n();
   const navigate = useNavigate();
-  const toast = useToast();
   const session = useSession();
-  const sync = useSync();
   const { groups, invites } = useGroups();
   const [nameOpen, setNameOpen] = useState(false);
-  const [busy, setBusy] = useState<string | null>(null);
 
   if (!HAS_BACKEND || !session) return null;
   const me = groupsStore.me();
-
-  const respond = async (inviteId: string, groupName: string, accept: boolean) => {
-    setBusy(inviteId);
-    try {
-      if (accept) {
-        const groupId = await groupsStore.acceptInvite(inviteId);
-        analytics.track('group_invite_accepted');
-        await sync.refreshGroups();
-        toast(t('groups.joined', { group: groupName }));
-        navigate(routes.group(groupId));
-      } else {
-        await groupsStore.declineInvite(inviteId);
-      }
-    } catch (err) {
-      toast(t(`groups.errors.${groupErrorCode(err)}`));
-    } finally {
-      setBusy(null);
-    }
-  };
 
   return (
     <section>
       <SectionLabel>{t('groups.section')}</SectionLabel>
 
-      {invites.map((inv) => (
-        <div key={inv.id} className={styles.invite}>
-          <p className={styles.inviteText}>
-            <Icon name="users" size={18} />
-            {t('groups.inviteFrom', { name: inv.invitedBy, group: inv.groupName })}
-          </p>
-          <div className={styles.inviteActions}>
-            <Button variant="secondary" block={false} disabled={busy === inv.id} onClick={() => void respond(inv.id, inv.groupName, false)}>
-              {t('groups.decline')}
-            </Button>
-            <Button block={false} disabled={busy === inv.id} onClick={() => void respond(inv.id, inv.groupName, true)}>
-              {t('groups.accept')}
-            </Button>
-          </div>
-        </div>
-      ))}
+      <div className={styles.invites}>
+        {invites.map((inv) => (
+          <InviteCard key={inv.id} invite={inv} onAccepted={(id) => navigate(routes.group(id))} />
+        ))}
+      </div>
 
       <ListGroup>
         {groups.map((g) => (
