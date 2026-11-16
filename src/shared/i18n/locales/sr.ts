@@ -524,6 +524,10 @@ export const sr: Dictionary = {
     feedbackText: 'U profilu je dugme za povratne informacije — recite nam šta da poboljšamo.',
     scanTitle: 'Skeniranje računa',
     scanText: 'Usmerite kameru na QR kod srpskog računa — iznos, prodavnica i stavke popunjavaju se sami.',
+    groupsTitle: 'Grupe troškova',
+    groupsText: 'Vodite zajedničke troškove: napravite grupu u profilu i pozovite do 4 osobe imejlom. „Svi · Lični · grupe“ menjate odmah na početnom ekranu.',
+    ratesTitle: 'Kurs na dan troška',
+    ratesText: 'Svaki trošak se preračunava po kursu svog dana, a ne današnjem.',
   },
   privacy: {
     row: 'Politika privatnosti',

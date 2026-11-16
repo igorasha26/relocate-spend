@@ -523,6 +523,10 @@ export const en: Dictionary = {
     feedbackText: 'Profile now has a feedback button — tell us what to improve.',
     scanTitle: 'Receipt scanning',
     scanText: 'Point the camera at the QR code on a Serbian receipt — amount, store and items are filled in automatically.',
+    groupsTitle: 'Expense groups',
+    groupsText: 'Track shared spending together: create a group in Profile and invite up to 4 people by email. Switch “All · Personal · groups” right on the home screen.',
+    ratesTitle: 'Rate on the expense date',
+    ratesText: 'Each expense is converted at the rate of its own day, not today’s.',
   },
   privacy: {
     row: 'Privacy policy',

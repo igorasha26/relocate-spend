@@ -27,6 +27,14 @@ export const RELEASES: Release[] = [
     cta: routes.profile,
   },
   {
+    id: '1.2-groups',
+    items: [
+      { icon: 'users', title: 'whatsNew.groupsTitle', text: 'whatsNew.groupsText' },
+      { icon: 'banknote', title: 'whatsNew.ratesTitle', text: 'whatsNew.ratesText' },
+    ],
+    cta: routes.profile,
+  },
+  {
     id: 'qr-scan',
     feature: 'qrScan',
     items: [{ icon: 'scan', title: 'whatsNew.scanTitle', text: 'whatsNew.scanText' }],
