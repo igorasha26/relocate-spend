@@ -42,6 +42,8 @@ interface GroupsState {
   userId: string | null;
   groups: Group[];
   invites: GroupInviteIn[];
+  /** Своё имя из профиля (null — не задано: показываем начало почты). */
+  myName?: string | null;
   /** Список получен с сервера после входа (а не только из кеша). */
   fresh: boolean;
 }
@@ -90,8 +92,11 @@ export const groupsStore = {
   me(): { id: string; name: string } | null {
     const session = auth.getSession();
     if (!session) return null;
-    const asMember = state.groups.flatMap((g) => g.members).find((m) => m.id === session.user.id);
-    return { id: session.user.id, name: asMember?.name ?? session.user.email.split('@')[0] ?? 'Я' };
+    const mine = state.userId === session.user.id;
+    const asMember = mine ? state.groups.flatMap((g) => g.members).find((m) => m.id === session.user.id) : undefined;
+    // Имя хранится в профиле — оно есть и у тех, кто ещё не состоит ни в одной группе
+    const own = mine ? state.myName : null;
+    return { id: session.user.id, name: own || asMember?.name || session.user.email.split('@')[0] || 'Я' };
   },
 
   /** Загрузить группы и приглашения с сервера. Ошибка сети — остаётся кеш. */
@@ -103,11 +108,13 @@ export const groupsStore = {
     }
     refreshing ??= (async () => {
       try {
-        const [groups, invites] = await Promise.all([
+        const [groups, invites, myName] = await Promise.all([
           rpc<Group[]>('my_groups'),
           rpc<GroupInviteIn[]>('my_invites'),
+          // старая база без функции my_display_name — не мешаем остальному
+          rpc<string | null>('my_display_name').catch(() => state.myName ?? null),
         ]);
-        set({ userId: session.user.id, groups: groups ?? [], invites: invites ?? [], fresh: true });
+        set({ userId: session.user.id, groups: groups ?? [], invites: invites ?? [], myName: myName ?? null, fresh: true });
       } finally {
         refreshing = null;
       }
@@ -146,12 +153,13 @@ export const groupsStore = {
 
   async setDisplayName(name: string) {
     await rpc('set_display_name', { p_name: name });
+    set({ ...state, myName: name.trim().slice(0, 40) || null });
     await groupsStore.refresh();
   },
 
   /** Выход из аккаунта: забыть группы этого пользователя. */
   clear() {
-    set({ userId: null, groups: [], invites: [], fresh: false });
+    set({ userId: null, groups: [], invites: [], myName: null, fresh: false });
   },
 };
 
