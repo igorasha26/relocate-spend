@@ -285,17 +285,19 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  width: 48px;
-  color: #fff;
+  width: 44px;
+  margin: 4px 0 4px 6px;
+  border-radius: var(--radius-sm);
 }
 
 .mockAction[data-tone='neutral'] {
-  background: var(--text-3);
+  background: var(--surface-2);
+  color: var(--text);
 }
 
-.mockAction[data-tone='accent'] {
-  background: var(--accent);
-  color: var(--on-accent);
+.mockAction[data-tone='danger'] {
+  background: color-mix(in srgb, var(--danger) 14%, var(--bg));
+  color: var(--danger);
 }
 
 .finger {

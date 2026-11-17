@@ -104,8 +104,8 @@ export function GesturesArt() {
         <span className={styles.mockAction} data-tone="neutral">
           <Icon name="pencil" size={18} />
         </span>
-        <span className={styles.mockAction} data-tone="accent">
-          <Icon name="receipt" size={18} />
+        <span className={styles.mockAction} data-tone="danger">
+          <Icon name="trash" size={18} />
         </span>
       </div>
       <span className={styles.finger} aria-hidden>

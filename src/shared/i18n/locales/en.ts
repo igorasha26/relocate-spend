@@ -127,6 +127,7 @@ export const en: Dictionary = {
     showAll: 'Show all expenses',
   },
   list: {
+    swipeMove: 'Move',
     swipeEdit: 'Edit',
     open: 'Open',
     receiptItems: 'Receipt items',
@@ -239,6 +240,7 @@ export const en: Dictionary = {
     deleteText: '“{name}” · {amount}\nThe item will be removed from the breakdown.\nThe expense total won’t change.',
   },
   details: {
+    move: 'Move…',
     editItems: 'Edit items',
     title: 'Expense details',
     fromQr: 'From QR receipt',
@@ -409,7 +411,7 @@ export const en: Dictionary = {
     s3Title: 'See where your money goes',
     s3Text: 'The home screen shows the monthly total and a ring by category. Swipe the ring right to open last month.',
     s4Title: 'Everything works with gestures',
-    s4Text: 'Tap an expense to open the receipt. Swipe left for “Edit” and “Open”. Without an account your data stays on this phone — turn on sync in Profile.',
+    s4Text: 'Tap an expense to open the receipt. Swipe left to edit, move or delete. Without an account your data stays on this phone — turn on sync in Profile.',
     profileRow: 'How to use the app',
   },
   auth: {
@@ -592,6 +594,13 @@ export const en: Dictionary = {
       too_many_invites: 'Too many invitations today. Please try tomorrow',
       unknown: 'Something went wrong. Check your connection and try again',
     },
+  },
+  move: {
+    title: 'Move expense',
+    hint: 'Amount, date and rate stay the same — the expense just moves.',
+    personalHint: 'To your own expenses, no group',
+    doneGroup: 'Moved to “{group}”',
+    donePersonal: 'Moved to personal',
   },
   space: {
     choose: 'Which expenses to show',

@@ -8,3 +8,4 @@ export { InviteCard } from './InviteCard';
 export { SpaceSheet } from './SpaceSheet';
 export { SpaceSwitcher } from './SpaceSwitcher';
 export { SpaceTarget } from './SpaceTarget';
+export { MoveExpenseSheet } from './MoveExpenseSheet';

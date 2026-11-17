@@ -128,6 +128,7 @@ export const sr: Dictionary = {
     showAll: 'Prikaži sve troškove',
   },
   list: {
+    swipeMove: 'Premesti',
     swipeEdit: 'Izmeni',
     open: 'Otvori',
     receiptItems: 'Stavke računa',
@@ -240,6 +241,7 @@ export const sr: Dictionary = {
     deleteText: '„{name}” · {amount}\nStavka će nestati iz detalja.\nIznos troška se neće promeniti.',
   },
   details: {
+    move: 'Premesti…',
     editItems: 'Izmeni stavke',
     title: 'Detalji troška',
     fromQr: 'Sa QR računa',
@@ -410,7 +412,7 @@ export const sr: Dictionary = {
     s3Title: 'Pogledajte gde odlazi novac',
     s3Text: 'Na početnoj — ukupno za mesec i prsten po kategorijama. Prevucite prsten udesno da otvorite prošli mesec.',
     s4Title: 'Sve radi pokretima',
-    s4Text: 'Dodirnite trošak da otvorite račun. Prevucite ulevo za „Izmeni” i „Otvori”. Bez naloga podaci ostaju na ovom telefonu — sinhronizaciju uključite u profilu.',
+    s4Text: 'Dodirnite trošak da otvorite račun. Prevucite ulevo da izmenite, premestite ili obrišete. Bez naloga podaci ostaju na ovom telefonu — sinhronizaciju uključite u profilu.',
     profileRow: 'Kako koristiti aplikaciju',
   },
   auth: {
@@ -593,6 +595,13 @@ export const sr: Dictionary = {
       too_many_invites: 'Previše pozivnica danas. Pokušajte sutra',
       unknown: 'Nije uspelo. Proverite internet i pokušajte ponovo',
     },
+  },
+  move: {
+    title: 'Premesti trošak',
+    hint: 'Iznos, datum i kurs se ne menjaju — trošak se samo premešta.',
+    personalHint: 'U vaše troškove, bez grupe',
+    doneGroup: 'Premešteno u „{group}”',
+    donePersonal: 'Premešteno u lične',
   },
   space: {
     choose: 'Koje troškove prikazati',

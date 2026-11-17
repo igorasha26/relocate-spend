@@ -11,13 +11,16 @@ interface Props {
   category: Category | undefined;
   swipeOpen: boolean;
   onSwipeOpenChange: (open: boolean) => void;
+  /** Перенести в группу / в личные; нет — некуда переносить. */
+  onMove?: () => void;
+  onDelete: () => void;
 }
 
 /**
  * Строка расхода. Нажатие — страница чека (детали).
- * Свайп влево — «Изменить» и «Открыть»; удаление — внутри чека.
+ * Свайп влево — «Изменить», «Перенести» (если есть группы) и «Удалить».
  */
-export function ExpenseRow({ expense, category, swipeOpen, onSwipeOpenChange }: Props) {
+export function ExpenseRow({ expense, category, swipeOpen, onSwipeOpenChange, onMove, onDelete }: Props) {
   const { t, fmt } = useI18n();
   const navigate = useNavigate();
   const name = useCategoryName();
@@ -31,7 +34,8 @@ export function ExpenseRow({ expense, category, swipeOpen, onSwipeOpenChange }: 
         onPress={() => navigate(routes.expense(expense.id))}
         actions={[
           { label: t('list.swipeEdit'), icon: 'pencil', tone: 'neutral', onClick: () => navigate(routes.editExpense(expense.id)) },
-          { label: t('list.open'), icon: 'receipt', tone: 'accent', onClick: () => navigate(routes.expense(expense.id)) },
+          ...(onMove ? [{ label: t('list.swipeMove'), icon: 'move' as const, tone: 'accent' as const, onClick: onMove }] : []),
+          { label: t('list.delete'), icon: 'trash', tone: 'danger', onClick: onDelete },
         ]}
       >
         <span className={styles.row}>

@@ -5,7 +5,7 @@ import { ConversionHint, isAmountFromItems, ItemsCard } from '@/entities/expense
 import { ratesService } from '@/shared/lib/money';
 import { DeleteExpenseDialog } from '@/features/expense-delete';
 import { ItemsEditSheet } from '@/features/expense-form';
-import { MemberPill } from '@/features/groups';
+import { MemberPill, MoveExpenseSheet } from '@/features/groups';
 import { useActions, useAppState, useCategory, useExpense, useGroups } from '@/store';
 import { routes } from '@/shared/config/routes';
 import { useI18n } from '@/shared/i18n';
@@ -25,6 +25,7 @@ export function ExpenseDetailsPage() {
   const { groups } = useGroups();
   const { updateExpense } = useActions();
   const [editingItems, setEditingItems] = useState(false);
+  const [moving, setMoving] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
   if (status !== 'ready') return null;
@@ -110,6 +111,12 @@ export function ExpenseDetailsPage() {
 
       <div className={styles.actions}>
         <Button onClick={() => navigate(routes.editExpense(expense.id))}>{t('details.edit')}</Button>
+        {/* Перенос в группу или обратно в личные — только если есть куда */}
+        {(groups.length > 0 || expense.groupId) && (
+          <Button variant="secondary" icon="move" onClick={() => setMoving(true)}>
+            {t('details.move')}
+          </Button>
+        )}
         <Button variant="danger-link" icon="trash" onClick={() => setDeleting(true)}>
           {t('details.delete')}
         </Button>
@@ -128,6 +135,7 @@ export function ExpenseDetailsPage() {
           setEditingItems(false);
         }}
       />
+      <MoveExpenseSheet expense={moving ? expense : null} onClose={() => setMoving(false)} />
       <DeleteExpenseDialog
         expense={deleting ? expense : null}
         onClose={() => setDeleting(false)}

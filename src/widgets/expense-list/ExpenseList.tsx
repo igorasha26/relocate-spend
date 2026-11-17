@@ -1,6 +1,8 @@
 import { useMemo, useState } from 'react';
 import { groupByDay, sumIn, type Expense } from '@/entities/expense';
-import { useCategories } from '@/store';
+import { DeleteExpenseDialog } from '@/features/expense-delete';
+import { MoveExpenseSheet } from '@/features/groups';
+import { useCategories, useGroups } from '@/store';
 import type { Currency } from '@/shared/config/currency';
 import { useI18n } from '@/shared/i18n';
 import { ExpenseRow } from './ExpenseRow';
@@ -20,6 +22,10 @@ export function ExpenseList({ expenses, currency }: Props) {
   const dayLabel = useDayLabel();
   // Открытой свайпом может быть только одна строка
   const [swipedId, setSwipedId] = useState<string | null>(null);
+  // Действия из свайпа: один лист/диалог на весь список
+  const [moving, setMoving] = useState<Expense | null>(null);
+  const [deleting, setDeleting] = useState<Expense | null>(null);
+  const canMove = useGroups().groups.length > 0;
   const groups = useMemo(() => groupByDay(expenses), [expenses]);
   const byId = useMemo(() => new Map(categories.map((c) => [c.id, c])), [categories]);
 
@@ -38,12 +44,16 @@ export function ExpenseList({ expenses, currency }: Props) {
                 expense={e}
                 category={byId.get(e.categoryId)}
                 swipeOpen={swipedId === e.id}
-                onSwipeOpenChange={(open) => setSwipedId(open ? e.id : null)}
+                onSwipeOpenChange={(open) => setSwipedId((cur) => (open ? e.id : cur === e.id ? null : cur))}
+                onMove={canMove || e.groupId ? () => setMoving(e) : undefined}
+                onDelete={() => setDeleting(e)}
               />
             ))}
           </ul>
         </section>
       ))}
+      <MoveExpenseSheet expense={moving} onClose={() => setMoving(null)} />
+      <DeleteExpenseDialog expense={deleting} onClose={() => setDeleting(null)} />
     </div>
   );
 }
