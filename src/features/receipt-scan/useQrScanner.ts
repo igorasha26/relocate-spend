@@ -10,9 +10,7 @@ interface BarcodeDetectorLike {
 }
 type BarcodeDetectorCtor = new (options: { formats: string[] }) => BarcodeDetectorLike;
 
-const SCAN_INTERVAL = 250;
-/** Сторона квадрата, в который ужимается центр кадра для jsQR: чек плотный, меньше — не читается. */
-const JSQR_SIZE = 900;
+const SCAN_INTERVAL = 120;
 
 type Decode = (video: HTMLVideoElement) => Promise<string | null>;
 
@@ -26,12 +24,19 @@ function nativeDecoder(Detector: BarcodeDetectorCtor): Decode {
 }
 
 /**
- * Запасной распознаватель на JS (iPhone: в Safari нет BarcodeDetector).
- * Библиотека грузится только здесь — в основной бандл не попадает.
- * Берём центральный квадрат кадра (туда смотрит рамка), ужимаем и отдаём jsQR.
+ * ZXing (C++ в WebAssembly) — для iPhone, где в Safari нет BarcodeDetector.
+ * Плотный QR сербского чека читает за 10–25 мс даже размытым и с тенью (jsQR — через раз и до 0,8 с).
+ * Библиотека и wasm-файл (~1 МБ) грузятся только при открытии сканера и дальше берутся из кеша.
+ * Распознаём весь кадр, а не только центр: код не обязан стоять ровно в рамке.
  */
-async function jsDecoder(): Promise<Decode> {
-  const { default: jsQR } = await import('jsqr');
+async function zxingDecoder(): Promise<Decode> {
+  const [{ prepareZXingModule, readBarcodes }, { default: wasmUrl }] = await Promise.all([
+    import('zxing-wasm/reader'),
+    import('zxing-wasm/reader/zxing_reader.wasm?url'),
+  ]);
+  prepareZXingModule({
+    overrides: { locateFile: (path: string, prefix: string) => (path.endsWith('.wasm') ? wasmUrl : prefix + path) },
+  });
   const canvas = document.createElement('canvas');
   const ctx = canvas.getContext('2d', { willReadFrequently: true });
   if (!ctx) throw new Error('no canvas');
@@ -39,19 +44,23 @@ async function jsDecoder(): Promise<Decode> {
     const w = video.videoWidth;
     const h = video.videoHeight;
     if (!w || !h) return null;
-    const side = Math.min(w, h);
-    const size = Math.min(side, JSQR_SIZE);
-    canvas.width = size;
-    canvas.height = size;
-    ctx.drawImage(video, (w - side) / 2, (h - side) / 2, side, side, 0, 0, size, size);
-    const image = ctx.getImageData(0, 0, size, size);
-    return jsQR(image.data, size, size, { inversionAttempts: 'dontInvert' })?.data ?? null;
+    if (canvas.width !== w || canvas.height !== h) {
+      canvas.width = w;
+      canvas.height = h;
+    }
+    ctx.drawImage(video, 0, 0, w, h);
+    const [result] = await readBarcodes(ctx.getImageData(0, 0, w, h), {
+      formats: ['QRCode'],
+      tryHarder: true,
+      maxNumberOfSymbols: 1,
+    });
+    return result?.isValid ? result.text : null;
   };
 }
 
 /**
  * Камера + распознавание QR: встроенный BarcodeDetector, где он есть,
- * иначе библиотека jsQR (iPhone). Нет камеры — статус 'unsupported',
+ * иначе ZXing в WebAssembly (iPhone). Нет камеры — статус 'unsupported',
  * и экран предлагает ввести расход вручную.
  */
 export function useQrScanner(onDetect: (text: string) => void, enabled: boolean) {
@@ -98,7 +107,7 @@ export function useQrScanner(onDetect: (text: string) => void, enabled: boolean)
       timer = window.setTimeout(tick, SCAN_INTERVAL);
     };
 
-    const decoderReady = (Detector ? Promise.resolve(nativeDecoder(Detector)) : jsDecoder()).then(
+    const decoderReady = (Detector ? Promise.resolve(nativeDecoder(Detector)) : zxingDecoder()).then(
       (d) => {
         decode = d;
       },

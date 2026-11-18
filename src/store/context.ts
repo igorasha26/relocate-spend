@@ -1,3 +1,4 @@
+import { ENV } from '@/shared/config/env';
 import { createContext, useContext, useMemo } from 'react';
 import { DEFAULT_CUSTOM_FIELDS, type Category } from '@/entities/category';
 import { today } from '@/shared/lib/date';
@@ -66,14 +67,18 @@ export function useExpense(id: string | undefined) {
   return useAppState().expenses.find((e) => e.id === id);
 }
 
-/** Сканы QR за текущий месяц и проверка бесплатного лимита. */
+/** Сканы QR за текущий месяц и проверка бесплатного лимита. В тестовой версии лимита нет. */
 export function useScanQuota(limit: number) {
   const { scans } = useAppState();
   const month = today().slice(0, 7);
   const used = scans.filter((s) => s.date.startsWith(month)).length;
+  if (!ENV.isProduction) {
+    return { used, limit, unlimited: true, remaining: limit, canScan: () => true };
+  }
   return {
     used,
     limit,
+    unlimited: false,
     remaining: Math.max(0, limit - used),
     /** Повторный скан уже засчитанного чека разрешён и при исчерпанном лимите. */
     canScan: (qrText: string) => used < limit || scans.some((s) => s.id === hashString(qrText)),

@@ -82,7 +82,7 @@ export function ScanPage() {
         </button>
       )}
 
-      <p className={styles.quota}>{t('scan.remaining', { left: quota.remaining, limit: FREE_SCAN_LIMIT })}</p>
+      {!quota.unlimited && <p className={styles.quota}>{t('scan.remaining', { left: quota.remaining, limit: FREE_SCAN_LIMIT })}</p>}
 
       <div className={styles.actions}>
         <Button onClick={() => navigate(routes.add, { replace: true })}>{t('scan.manual')}</Button>
