@@ -8,6 +8,10 @@ export interface ParsedReceipt {
   amount: number;
   currency: 'RSD';
   items: { name: string; price: number }[];
+  /** Подсказка категории по магазину (id встроенной категории). */
+  categoryHint?: string;
+  /** Налоговая не ответила: сумма и дата взяты из самого QR, магазина и позиций нет. */
+  partial?: boolean;
 }
 
 /** Коды ошибок соответствуют шторкам из макета (UI 27–29) + служебные. */

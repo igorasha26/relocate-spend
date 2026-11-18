@@ -31,9 +31,12 @@ function ReviewForm({ receipt }: { receipt: ParsedReceipt }) {
 
   const [amount, setAmount] = useState(String(receipt.amount).replace('.', ','));
   const [currency, setCurrency] = useState<Currency>(receipt.currency);
-  const [categoryId, setCategoryId] = useState<string | null>(DEFAULT_RECEIPT_CATEGORY);
+  const hinted = useCategory(receipt.categoryHint);
+  // Категорию подсказывает магазин (аптека → медицина), иначе — продукты
+  const [categoryId, setCategoryId] = useState<string | null>(hinted ? hinted.id : DEFAULT_RECEIPT_CATEGORY);
   const [merchant, setMerchant] = useState(receipt.merchant);
-  const [editingMerchant, setEditingMerchant] = useState(false);
+  // Налоговая не ответила — магазина нет, сразу предлагаем ввести
+  const [editingMerchant, setEditingMerchant] = useState(Boolean(receipt.partial));
   const [comment, setComment] = useState('');
   const [sheet, setSheet] = useState<'category' | 'currency' | null>(null);
   const [itemsWithIds] = useState(() => receipt.items.map((item) => ({ ...item, id: createId() })));
@@ -69,7 +72,11 @@ function ReviewForm({ receipt }: { receipt: ParsedReceipt }) {
     <Page gap="md">
       <PageHeader title={t('review.title')} onBack={() => navigate(-1)} />
 
-      <Notice tone="success" icon="check" title={t('review.successTitle')} text={t('review.successText')} />
+      {receipt.partial ? (
+        <Notice tone="warning" title={t('review.partialTitle')} text={t('review.partialText')} />
+      ) : (
+        <Notice tone="success" icon="check" title={t('review.successTitle')} text={t('review.successText')} />
+      )}
       <SpaceTarget value={target} onChange={setTarget} />
 
       <AmountCard
@@ -98,8 +105,9 @@ function ReviewForm({ receipt }: { receipt: ParsedReceipt }) {
 
       {editingMerchant ? (
         <TextInput
-          autoFocus
+          autoFocus={!receipt.partial}
           label={t('form.merchant')}
+          placeholder={t('form.merchantBy.other.placeholder')}
           value={merchant}
           onChange={(e) => setMerchant(e.target.value)}
           onBlur={() => setEditingMerchant(false)}

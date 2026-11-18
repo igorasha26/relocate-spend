@@ -298,6 +298,8 @@ export const sr: Dictionary = {
   },
   review: {
     title: 'Proveri račun',
+    partialTitle: 'Poreska uprava trenutno ne odgovara',
+    partialText: 'Iznos i vreme su preuzeti iz QR koda. Upišite prodavnicu i izaberite kategoriju.',
     successTitle: 'Račun je uspešno pročitan',
     successText: 'Proverite podatke pre čuvanja',
     amount: 'Iznos troška',

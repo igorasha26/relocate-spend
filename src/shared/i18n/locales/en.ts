@@ -297,6 +297,8 @@ export const en: Dictionary = {
   },
   review: {
     title: 'Check receipt',
+    partialTitle: 'The tax office isn’t responding',
+    partialText: 'Amount and time come from the QR code. Add the shop and pick a category.',
     successTitle: 'Receipt read successfully',
     successText: 'Check the details before saving',
     amount: 'Expense amount',
